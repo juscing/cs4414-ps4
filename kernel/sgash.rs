@@ -206,9 +206,13 @@ unsafe fn parse() {
 		// COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
 		if(y.streq(&"echo")) {
 		    let mut i = 1;
+		    putstr(&"\n");
 		    loop {
 			match buffer.getarg(' ', i) {
 			    Some(word) => {
+				if i != 1 {
+				    putstr(&" ");
+				}
 				putcstr(word);
 				if i == 1 {
 				    drawcstr(word, true, false);
@@ -243,6 +247,9 @@ unsafe fn parse() {
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
+		} else {
+		    putstr(&"\nUnrecognized Command!");
+		    drawstr(&"\nUnrecognized Command!");
 		}
 		/*
 		if(y.streq(&"cat")) {
