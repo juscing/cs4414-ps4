@@ -68,11 +68,14 @@ pub unsafe fn init(width: u32, height: u32)
 	ws(0x10120018, 0x82B);
 
     }
-    set_bg(0x222C38);
-    set_fg(0xFAFCFF);
-    set_cursor_color(0xFAFCFF);
-    fill_bg();	
-    sgash::drawstr(&"sgash > ");
+    //PROBLEM 2
+    //PLEASE NOTE THESE ARE NOT STANDARD RGB COLORS! THEY ARE BGR!
+    set_bg(0x68320D);
+    set_fg(0x0370FF);
+    set_cursor_color(0xDAF2F5);
+    fill_bg();
+    //PROBLEM 1
+    sgash::drawstr(&"sgash> ");
     draw_cursor();
 }
 
@@ -115,6 +118,10 @@ pub unsafe fn draw_char(c: char)
 	{
 	    //let addr = START_ADDR + 4*(CURSOR_X + CURSOR_WIDTH - i + SCREEN_WIDTH*(CURSOR_Y + j));
 	    //let addr = START_ADDR + 4*(CURSOR_X + CURSOR_WIDTH + SCREEN_WIDTH*CURSOR_Y) - 4*i + 4*SCREEN_WIDTH*j
+	    
+	    //PROBLEM 3 MAKES THE FOLLOWING LINE LOOK LIKE THIS:
+	    //if ((map[CURSOR_HEIGHT - j] >> 4*(CURSOR_WIDTH - i)) & 1) == 1
+	    //NORMAL WAY
 	    if ((map[j] >> 4*i) & 1) == 1
 	    {
 		*(addr as *mut u32) = FG_COLOR;

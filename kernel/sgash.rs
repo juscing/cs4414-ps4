@@ -41,6 +41,25 @@ pub unsafe fn drawstr(msg: &str) {
     super::super::io::set_fg(old_fg);
 }
 
+pub unsafe fn drawcstr(s: cstr, newln: bool, space: bool) {
+    let old_fg = super::super::io::FG_COLOR;
+    let mut x: u32 = 0x6699AAFF;
+    let mut p = s.p as uint;
+    if newln {
+	drawchar('\n');
+    }
+    if space {
+	drawchar(' ');
+    }
+    while *(p as *char) != '\0' {
+	x = (x << 8) + (x >> 24); 
+	super::super::io::set_fg(x);
+	drawchar(*(p as *char));
+	p += 1;
+    }
+    super::super::io::set_fg(old_fg);
+}
+
 pub unsafe fn putcstr(s: cstr)
 {
     let mut p = s.p as uint;
@@ -169,20 +188,65 @@ pub unsafe fn init() {
 }
 
 unsafe fn prompt(startup: bool) {
-	putstr(&"\nsgash > ");
-	if !startup {drawstr(&"\nsgash > ");}
-
+	//PROBLEM 1
+	putstr(&"\nsgash> ");
+	if !startup {drawstr(&"\nsgash> ");}
 	buffer.reset();
 }
 
 unsafe fn parse() {
+	/*
 	if (buffer.streq(&"ls")) { 
-	    putstr( &"\na\tb") ;
-	    drawstr( &"\na    b") ;
+	    putstr( &"\na\tb");
+	    drawstr( &"\na    b");
 	};
+	*/
 	match buffer.getarg(' ', 0) {
 	    Some(y)        => {
+		// COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
+		if(y.streq(&"echo")) {
+		    let mut i = 1;
+		    loop {
+			match buffer.getarg(' ', i) {
+			    Some(word) => {
+				putcstr(word);
+				if i == 1 {
+				    drawcstr(word, true, false);
+				} else {
+				    drawcstr(word, false, true);
+				}
+				i+=1;
+			    }
+			    None => { break; }
+			}
+		    }
+		    //putstr(&"\nTEST echo");
+		    //drawstr(&"\nTEST echo");
+		} else if(y.streq(&"ls")) {
+		    putstr(&"\nTEST ls");
+		    drawstr(&"\nTEST ls");
+		} else if(y.streq(&"cat")) {
+		    putstr(&"\nTEST cat");
+		    drawstr(&"\nTEST cat");
+		} else if(y.streq(&"cd")) {
+		    putstr(&"\nTEST cd");
+		    drawstr(&"\nTEST cd");
+		} else if(y.streq(&"rm")) {
+		    putstr(&"\nTEST rm");
+		    drawstr(&"\nTEST rm");
+		} else if(y.streq(&"mkdir")) {
+		    putstr(&"\nTEST mkdir");
+		    drawstr(&"\nTEST mkdir");
+		} else if(y.streq(&"pwd")) {
+		    putstr(&"\nTEST pwd");
+		    drawstr(&"\nTEST pwd");
+		} else if(y.streq(&"wr")) {
+		    putstr(&"\nTEST wr");
+		    drawstr(&"\nTEST wr");
+		}
+		/*
 		if(y.streq(&"cat")) {
+		    
 		    match buffer.getarg(' ', 1) {
 			Some(x)        => {
 			    if(x.streq(&"a")) { 
@@ -197,10 +261,12 @@ unsafe fn parse() {
 			None        => { }
 		    };
 		}
+		
 		if(y.streq(&"open")) {
 		    putstr(&"\nTEST YO");
 		    drawstr(&"\nTEST YO");
 		}
+		*/
 	    }
 	    None        => { }
 	};
@@ -251,6 +317,12 @@ impl cstr {
 		self.p_cstr_i += 1;
 		*(((self.p as uint)+self.p_cstr_i) as *mut char) = '\0';
 		true
+	}
+	
+	unsafe fn get_char(&mut self, x: uint) -> char{
+	    if x >= self.p_cstr_i { return '\0'; }
+	    //raw memory address! just index it!
+	    *(((self.p as uint)+x) as *mut char)
 	}
 
 	unsafe fn delete_char(&mut self) -> bool {
