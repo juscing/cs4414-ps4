@@ -1,3 +1,0 @@
-[submodule "ironkernel"]
-	path = ironkernel
-	url = https://github.com/wbthomason/ironkernel.git
