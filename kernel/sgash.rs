@@ -203,6 +203,9 @@ unsafe fn parse() {
 	*/
 	match buffer.getarg(' ', 0) {
 	    Some(y)        => {
+		if y.len() == 0 {
+		    return;
+		}
 		// COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
 		if(y.streq(&"echo")) {
 		    let mut i = 1;
