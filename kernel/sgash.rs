@@ -427,3 +427,77 @@ impl cstr {
 
 }
 
+struct tree {
+    root: dnode
+}
+
+impl tree {
+    unsafe fn new() -> tree {
+	let this = tree {
+	    root: dnode::new(256, cstr::from_str(&"/"), '\0' as u8),
+	};
+	this
+    }
+}
+
+struct dnode {
+    children: *mut u8,
+    curptr: uint,
+    name: cstr,
+    max: uint,
+    parent: u8,
+}
+
+impl dnode {
+    unsafe fn new(size: uint, name: cstr, parent: u8) -> dnode {
+	// Sometimes this doesn't allocate enough memory and gets stuck...
+	let (x, y) = heap.alloc(size);
+	let this = dnode {
+		children: x,
+		curptr: 0,
+		name: name,
+		max: y,
+		parent: parent,
+	};
+	*(((this.children as uint)+this.curptr) as *mut char) = '\0';
+	this
+    }
+    
+    fn len(&self) -> uint { self.curptr }
+    
+    unsafe fn add_child(&mut self, x: u8) -> bool{
+	if (self.curptr == self.max) { return false; }
+	*(((self.children as uint)+self.curptr) as *mut u8) = x;
+	self.curptr += 1;
+	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
+	true
+    }
+    
+    /*
+    unsafe fn delete_item(&mut self) -> bool {
+	if (self.curptr == 0) { return false; }
+	self.curptr -= 1;
+	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
+	true
+    }
+    */
+}
+
+struct fnode {
+    data: cstr,
+    curptr: uint,
+    name: cstr,
+    parent: u8,
+}
+
+impl fnode {
+    unsafe fn new(size: uint, name: cstr, data: cstr, parent: u8) -> fnode {
+	let this = fnode {
+	    data: data,
+	    curptr: 0,
+	    name: name,
+	    parent: parent,
+	};
+	this
+    }
+}
