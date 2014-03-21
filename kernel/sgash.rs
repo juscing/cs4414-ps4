@@ -433,9 +433,9 @@ struct fs {
 }
 
 impl fs {
-    unsafe fn new() -> tree {
+    unsafe fn new() -> fs {
 	let rdnode = dnode::new(256, cstr::from_str(&"/"), '\0' as u8);
-	let this = tree {
+	let this = fs {
 	    root: rdnode,
 	    cwd: rdnode,
 	};
