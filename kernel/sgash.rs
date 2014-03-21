@@ -13,6 +13,9 @@ pub static mut buffer: cstr = cstr {
 				p_cstr_i: 0,
 				max: 0
 			      };
+
+pub static mut filesys: fs = fs::new();
+
 pub fn putchar(key: char) {
     unsafe {
 	/*
