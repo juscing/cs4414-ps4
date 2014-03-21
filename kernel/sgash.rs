@@ -427,14 +427,17 @@ impl cstr {
 
 }
 
-struct tree {
-    root: dnode
+struct fs {
+    root: dnode,
+    cwd: dnode,
 }
 
-impl tree {
+impl fs {
     unsafe fn new() -> tree {
+	let rdnode = dnode::new(256, cstr::from_str(&"/"), '\0' as u8);
 	let this = tree {
-	    root: dnode::new(256, cstr::from_str(&"/"), '\0' as u8),
+	    root: rdnode,
+	    cwd: rdnode,
 	};
 	this
     }
