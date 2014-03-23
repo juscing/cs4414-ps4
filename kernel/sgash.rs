@@ -14,8 +14,24 @@ pub static mut buffer: cstr = cstr {
 				max: 0
 			      };
 
-pub static mut filesys: fs = fs::new();
+static temp: cstr = cstr {
+    p: 0 as *mut u8,
+    p_cstr_i: 0,
+    max: 0
+};			      
+			      
+static root: dnode = dnode {
+    children: 0 as *mut u8,
+    curptr: 0,
+    name: temp,
+    max: 0,
+    parent: 0,
+};
 
+pub static mut filesys: fs = fs {
+    root: root,
+    cwd: root,
+};
 pub fn putchar(key: char) {
     unsafe {
 	/*
