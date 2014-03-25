@@ -20,7 +20,7 @@ static temp: cstr = cstr {
     max: 0
 };			      
 			      
-static root: dnode = dnode {
+static troot: dnode = dnode {
     children: 0 as *mut u8,
     curptr: 0,
     name: temp,
@@ -29,8 +29,8 @@ static root: dnode = dnode {
 };
 
 pub static mut filesys: fs = fs {
-    root: root,
-    cwd: root,
+    root: troot,
+    cwd: troot,
 };
 pub fn putchar(key: char) {
     unsafe {
@@ -154,6 +154,11 @@ fn keycode(x: u8) {
 	}
 	putchar(' ');
 }
+
+pub unsafe fn pwd() -> cstr {
+    filesys.pwd()
+}
+
 fn screen() {
 	
 	putstr(&"\n                                                               "); 
@@ -202,11 +207,14 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
+    filesys = fs::new();
+    putcstr(filesys.pwd());
     screen();
     prompt(true);
 }
 
 unsafe fn prompt(startup: bool) {
+	putcstr(filesys.pwd());
 	//PROBLEM 1
 	putstr(&"\nsgash> ");
 	if !startup {drawstr(&"\nsgash> ");}
@@ -220,6 +228,7 @@ unsafe fn parse() {
 	    drawstr( &"\na    b");
 	};
 	*/
+	putcstr(filesys.pwd());
 	match buffer.getarg(' ', 0) {
 	    Some(y)        => {
 		if y.len() == 0 {
@@ -264,8 +273,8 @@ unsafe fn parse() {
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
 		} else if(y.streq(&"pwd")) {
-		    putstr(&"\nTEST pwd");
-		    drawstr(&"\nTEST pwd");
+		    putcstr(filesys.pwd());
+		    drawcstr(filesys.pwd(), true, false);
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
@@ -452,13 +461,20 @@ struct fs {
 }
 
 impl fs {
-    unsafe fn new() -> fs {
-	let rdnode = dnode::new(256, cstr::from_str(&"/"), '\0' as u8);
+    pub unsafe fn new() -> fs {
+	let x: cstr = cstr::from_str(&"/");
+	//putcstr(x);
+	//drawcstr(x, true, false);
+	let mut rdnode = dnode::new(256, x, '\0' as u8);
 	let this = fs {
 	    root: rdnode,
 	    cwd: rdnode,
 	};
 	this
+    }
+    
+    fn pwd(&self) -> cstr {
+	self.cwd.name
     }
 }
 
