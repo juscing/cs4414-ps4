@@ -14,6 +14,12 @@ pub static mut buffer: cstr = cstr {
     max: 0
 };
 
+pub static mut rootname: cstr = cstr {
+    p: 0 as *mut u8,
+    p_cstr_i: 0,
+    max: 0
+};
+
 pub static mut root: Option<dnode> = None;
 
 pub static mut cwd: Option<dnode> = None;
@@ -189,6 +195,8 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
+    rootname = cstr::new(256);
+    rootname.add_char('c' as u8);
     root = Some(dnode::new(256, '/' as u8, 0 as u8));
     cwd = root;
     screen();
@@ -232,8 +240,12 @@ unsafe fn parse() {
 			}
 		    }
 		} else if(y.streq(&"ls")) {
-		    putstr(&"\nTEST ls");
-		    drawstr(&"\nTEST ls");
+		    let mut i = 0;
+		    while i < cwd.get().len() {
+		    
+		    }
+		    //putstr(&"\nTEST ls");
+		    //drawstr(&"\nTEST ls");
 		} else if(y.streq(&"cat")) {
 		    putstr(&"\nTEST cat");
 		    drawstr(&"\nTEST cat");
@@ -263,6 +275,10 @@ unsafe fn parse() {
 		    //drawstr(&"\nTEST mkdir");
 		} else if(y.streq(&"pwd")) {
 		    //TODO: Change back to strings
+		    /*
+		    putcstr(rootname);
+		    drawcstr(rootname, true, false);
+		    */
 		    putchar('\n');
 		    drawchar('\n');
 		    putchar(cwd.get().name as char);
@@ -472,7 +488,7 @@ impl dnode {
 	this
     }
     
-    //fn len(&self) -> uint { self.curptr }
+    fn len(&self) -> uint { self.curptr }
     
     unsafe fn add_child(&mut self, x: u8) -> bool{
 	if (self.curptr == self.max) { return false; }
