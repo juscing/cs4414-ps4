@@ -16,6 +16,8 @@ pub static mut buffer: cstr = cstr {
 
 pub static mut root: Option<dnode> = None;
 
+pub static mut cwd: Option<dnode> = None;
+
 pub fn putchar(key: char) {
     unsafe {
 	/*
@@ -188,6 +190,7 @@ fn screen() {
 pub unsafe fn init() {
     buffer = cstr::new(256);
     root = Some(dnode::new(256, '/' as u8, 0 as u8));
+    cwd = root;
     screen();
     prompt(true);
 }
@@ -228,8 +231,6 @@ unsafe fn parse() {
 			    None => { break; }
 			}
 		    }
-		    //putstr(&"\nTEST echo");
-		    //drawstr(&"\nTEST echo");
 		} else if(y.streq(&"ls")) {
 		    putstr(&"\nTEST ls");
 		    drawstr(&"\nTEST ls");
@@ -243,13 +244,29 @@ unsafe fn parse() {
 		    putstr(&"\nTEST rm");
 		    drawstr(&"\nTEST rm");
 		} else if(y.streq(&"mkdir")) {
-		    putstr(&"\nTEST mkdir");
-		    drawstr(&"\nTEST mkdir");
+		    match buffer.getarg(' ', 1) {
+			Some(mut word) => {
+			    if word.len() < 1 {
+				putstr(&"Bad Directory Name\n");
+				drawstr(&"Bad Directory Name\n");
+				return;
+			    }
+			    let dir = Some(dnode::new(256, word.get_char(0) as u8, 0 as u8));
+			    cwd.get().add_child((&dir.get() as *dnode) as u8);
+			}
+			None => {
+			    putstr(&"Bad Directory Name\n");
+			    drawstr(&"Bad Directory Name\n");
+			}
+		    }
+		    //putstr(&"\nTEST mkdir");
+		    //drawstr(&"\nTEST mkdir");
 		} else if(y.streq(&"pwd")) {
+		    //TODO: Change back to strings
 		    putchar('\n');
 		    drawchar('\n');
-		    putchar(root.get().name as char);
-		    drawchar(root.get().name as char);
+		    putchar(cwd.get().name as char);
+		    drawchar(cwd.get().name as char);
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
@@ -456,7 +473,7 @@ impl dnode {
     }
     
     //fn len(&self) -> uint { self.curptr }
-    /*
+    
     unsafe fn add_child(&mut self, x: u8) -> bool{
 	if (self.curptr == self.max) { return false; }
 	*(((self.children as uint)+self.curptr) as *mut u8) = x;
@@ -464,7 +481,7 @@ impl dnode {
 	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
 	true
     }
-    */
+    
     /*
     unsafe fn delete_item(&mut self) -> bool {
 	if (self.curptr == 0) { return false; }
