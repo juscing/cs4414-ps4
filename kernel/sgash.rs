@@ -9,29 +9,13 @@ use super::super::platform::*;
 use kernel::memory::Allocator;
 
 pub static mut buffer: cstr = cstr {
-				p: 0 as *mut u8,
-				p_cstr_i: 0,
-				max: 0
-			      };
-
-static temp: cstr = cstr {
     p: 0 as *mut u8,
     p_cstr_i: 0,
     max: 0
-};			      
-			      
-static troot: dnode = dnode {
-    children: 0 as *mut u8,
-    curptr: 0,
-    name: temp,
-    max: 0,
-    parent: 0,
 };
 
-pub static mut filesys: fs = fs {
-    root: troot,
-    cwd: troot,
-};
+pub static mut root: Option<dnode> = None;
+
 pub fn putchar(key: char) {
     unsafe {
 	/*
@@ -155,10 +139,6 @@ fn keycode(x: u8) {
 	putchar(' ');
 }
 
-pub unsafe fn pwd() -> cstr {
-    filesys.pwd()
-}
-
 fn screen() {
 	
 	putstr(&"\n                                                               "); 
@@ -207,14 +187,12 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
-    filesys = fs::new();
-    putcstr(filesys.pwd());
+    root = Some(dnode::new(256, '/' as u8, 0 as u8));
     screen();
     prompt(true);
 }
 
 unsafe fn prompt(startup: bool) {
-	putcstr(filesys.pwd());
 	//PROBLEM 1
 	putstr(&"\nsgash> ");
 	if !startup {drawstr(&"\nsgash> ");}
@@ -222,13 +200,8 @@ unsafe fn prompt(startup: bool) {
 }
 
 unsafe fn parse() {
-	/*
-	if (buffer.streq(&"ls")) { 
-	    putstr( &"\na\tb");
-	    drawstr( &"\na    b");
-	};
-	*/
-	putcstr(filesys.pwd());
+	//putcstr(rootname);
+	
 	match buffer.getarg(' ', 0) {
 	    Some(y)        => {
 		if y.len() == 0 {
@@ -273,8 +246,10 @@ unsafe fn parse() {
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
 		} else if(y.streq(&"pwd")) {
-		    putcstr(filesys.pwd());
-		    drawcstr(filesys.pwd(), true, false);
+		    putchar('\n');
+		    drawchar('\n');
+		    putchar(root.get().name as char);
+		    drawchar(root.get().name as char);
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
@@ -282,33 +257,12 @@ unsafe fn parse() {
 		    putstr(&"\nUnrecognized Command!");
 		    drawstr(&"\nUnrecognized Command!");
 		}
-		/*
-		if(y.streq(&"cat")) {
-		    
-		    match buffer.getarg(' ', 1) {
-			Some(x)        => {
-			    if(x.streq(&"a")) { 
-				putstr( &"\nHowdy!"); 
-				drawstr( &"\nHowdy!"); 
-			    }
-			    if(x.streq(&"b")) {
-				putstr( &"\nworld!");
-				drawstr( &"\nworld!");
-			    }
-			}
-			None        => { }
-		    };
-		}
-		
-		if(y.streq(&"open")) {
-		    putstr(&"\nTEST YO");
-		    drawstr(&"\nTEST YO");
-		}
-		*/
 	    }
 	    None        => { }
 	};
+	
 	buffer.reset();
+	
 }
 
 /* BUFFER MODIFICATION FUNCTIONS */
@@ -323,7 +277,7 @@ impl cstr {
 	pub unsafe fn new(size: uint) -> cstr {
 		// Sometimes this doesn't allocate enough memory and gets stuck...
 		let (x, y) = heap.alloc(size);
-		let this = cstr {
+		let mut this = cstr {
 			p: x,
 			p_cstr_i: 0,
 			max: y
@@ -454,9 +408,9 @@ impl cstr {
 
 
 }
-
+/*
 struct fs {
-    root: dnode,
+    //root: dnode,
     cwd: dnode,
 }
 
@@ -467,7 +421,7 @@ impl fs {
 	//drawcstr(x, true, false);
 	let mut rdnode = dnode::new(256, x, '\0' as u8);
 	let this = fs {
-	    root: rdnode,
+	    //root: rdnode,
 	    cwd: rdnode,
 	};
 	this
@@ -477,20 +431,20 @@ impl fs {
 	self.cwd.name
     }
 }
-
+*/
 struct dnode {
     children: *mut u8,
     curptr: uint,
-    name: cstr,
     max: uint,
+    name: u8,
     parent: u8,
 }
 
 impl dnode {
-    unsafe fn new(size: uint, name: cstr, parent: u8) -> dnode {
+    unsafe fn new(size: uint, name: u8, parent: u8) -> dnode {
 	// Sometimes this doesn't allocate enough memory and gets stuck...
 	let (x, y) = heap.alloc(size);
-	let this = dnode {
+	let mut this = dnode {
 		children: x,
 		curptr: 0,
 		name: name,
@@ -501,8 +455,8 @@ impl dnode {
 	this
     }
     
-    fn len(&self) -> uint { self.curptr }
-    
+    //fn len(&self) -> uint { self.curptr }
+    /*
     unsafe fn add_child(&mut self, x: u8) -> bool{
 	if (self.curptr == self.max) { return false; }
 	*(((self.children as uint)+self.curptr) as *mut u8) = x;
@@ -510,7 +464,7 @@ impl dnode {
 	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
 	true
     }
-    
+    */
     /*
     unsafe fn delete_item(&mut self) -> bool {
 	if (self.curptr == 0) { return false; }
