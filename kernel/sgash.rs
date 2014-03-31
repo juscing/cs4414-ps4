@@ -14,6 +14,12 @@ pub static mut buffer: cstr = cstr {
 				max: 0
 			      };
 
+pub static mut name: cstr = cstr {
+				p: 0 as *mut u8,
+				p_cstr_i: 0,
+				max: 0
+			      };
+			      
 static temp: cstr = cstr {
     p: 0 as *mut u8,
     p_cstr_i: 0,
@@ -202,6 +208,8 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
+    name = cstr::new(256);
+    name.add_char('c' as u8);
     screen();
     prompt(true);
 }
@@ -266,6 +274,7 @@ unsafe fn parse() {
 		} else if(y.streq(&"pwd")) {
 		    putstr(&"\nTEST pwd");
 		    drawstr(&"\nTEST pwd");
+		    putcstr(name);
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
