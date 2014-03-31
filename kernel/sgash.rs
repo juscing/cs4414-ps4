@@ -197,7 +197,7 @@ pub unsafe fn init() {
     buffer = cstr::new(256);
     rootname = cstr::new(256);
     rootname.add_char('c' as u8);
-    root = Some(dnode::new(256, '/' as u8, 0 as u8));
+    root = Some(dnode::new(256, '/' as u8, '\0' as uint));
     cwd = root;
     screen();
     prompt(true);
@@ -268,8 +268,8 @@ unsafe fn parse() {
 				drawstr(&"Bad Directory Name\n");
 				return;
 			    }
-			    let dir = Some(dnode::new(256, word.get_char(0) as u8, 0 as u8));
-			    let x = cwd.get().add_child((&dir.get() as *dnode) as u8);
+			    let dir = Some(dnode::new(256, word.get_char(0) as u8, 0 as uint));
+			    let x = cwd.get().add_child((&dir.get() as *dnode) as uint);
 			    if x {
 				putstr(&"SUCCESS");
 			    } else {
@@ -476,42 +476,42 @@ impl fs {
 }
 */
 struct dnode {
-    children: *mut u8,
+    children: *mut uint,
     curptr: uint,
     max: uint,
     name: u8,
-    parent: u8,
+    parent: uint,
 }
 
 impl dnode {
-    unsafe fn new(size: uint, name: u8, parent: u8) -> dnode {
+    unsafe fn new(size: uint, name: u8, parent: uint) -> dnode {
 	// Sometimes this doesn't allocate enough memory and gets stuck...
 	let (x, y) = heap.alloc(size);
 	let mut this = dnode {
-		children: x,
+		children: x as *mut uint,
 		curptr: 0,
 		name: name,
-		max: y,
+		max: y/4,
 		parent: parent,
 	};
-	*(((this.children as uint)+this.curptr) as *mut char) = '\0';
+	*(((this.children as uint)+this.curptr) as *mut uint) = '\0' as uint;
 	this
     }
     
     fn len(&self) -> uint { self.curptr }
     
-    unsafe fn add_child(&mut self, x: u8) -> bool{
+    unsafe fn add_child(&mut self, x: uint) -> bool{
 	if (self.curptr == self.max) { return false; }
-	*(((self.children as uint)+self.curptr) as *mut u8) = x;
+	*(((self.children as uint)+self.curptr) as *mut uint) = x;
 	self.curptr += 1;
-	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
+	*(((self.children as uint)+self.curptr) as *mut uint) = '\0' as uint;
 	true
     }
     
-    unsafe fn get_dir(&mut self, x: uint) -> u8{
-	if x >= self.curptr { return '\0' as u8; }
+    unsafe fn get_dir(&mut self, x: uint) -> uint{
+	if x >= self.curptr { return '\0' as uint; }
 	//raw memory address! just index it!
-	*(((self.children as uint)+x) as *mut u8)
+	*(((self.children as uint)+x) as *mut uint)
     }
     
     /*
