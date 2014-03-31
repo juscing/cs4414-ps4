@@ -242,7 +242,12 @@ unsafe fn parse() {
 		} else if(y.streq(&"ls")) {
 		    let mut i = 0;
 		    while i < cwd.get().len() {
-		    
+			putstr(&"IS THIS WORKING");
+			let ptr = cwd.get().get_dir(i) as *dnode;
+			let t = *ptr;
+			putchar(t.name as char);
+			drawchar(t.name as char);
+			i = i +1;
 		    }
 		    //putstr(&"\nTEST ls");
 		    //drawstr(&"\nTEST ls");
@@ -264,7 +269,12 @@ unsafe fn parse() {
 				return;
 			    }
 			    let dir = Some(dnode::new(256, word.get_char(0) as u8, 0 as u8));
-			    cwd.get().add_child((&dir.get() as *dnode) as u8);
+			    let x = cwd.get().add_child((&dir.get() as *dnode) as u8);
+			    if x {
+				putstr(&"SUCCESS");
+			    } else {
+				putstr(&"Fail");
+			    }
 			}
 			None => {
 			    putstr(&"Bad Directory Name\n");
@@ -496,6 +506,12 @@ impl dnode {
 	self.curptr += 1;
 	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
 	true
+    }
+    
+    unsafe fn get_dir(&mut self, x: uint) -> u8{
+	if x >= self.curptr { return '\0' as u8; }
+	//raw memory address! just index it!
+	*(((self.children as uint)+x) as *mut u8)
     }
     
     /*
