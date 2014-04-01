@@ -226,8 +226,19 @@ unsafe fn parse() {
 			}
 		    }
 		} else if(y.streq(&"ls")) {
+		    let mut i = 0;
+		    while i < cwd.get().len() {
+			//putstr(&"IS THIS WORKING");
+			let ptr = filesys.get().cwd.get_dir(i) as *dnode;
+			let t = *ptr;
+			putchar(t.name as char);
+			drawchar(t.name as char);
+			i = i +1;
+		    }
+		    /*
 		    putstr(&"\nTEST ls");
 		    drawstr(&"\nTEST ls");
+		    */
 		} else if(y.streq(&"cat")) {
 		    putstr(&"\nTEST cat");
 		    drawstr(&"\nTEST cat");
