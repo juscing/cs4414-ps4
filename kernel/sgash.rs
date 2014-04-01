@@ -14,12 +14,9 @@ pub static mut buffer: cstr = cstr {
 				max: 0
 			      };
 
-pub static mut name: cstr = cstr {
-				p: 0 as *mut u8,
-				p_cstr_i: 0,
-				max: 0
-			      };
-			      
+pub static mut filesys: Option<fs> = None;
+
+/*
 static temp: cstr = cstr {
     p: 0 as *mut u8,
     p_cstr_i: 0,
@@ -38,6 +35,8 @@ pub static mut filesys: fs = fs {
     root: root,
     cwd: root,
 };
+*/
+
 pub fn putchar(key: char) {
     unsafe {
 	/*
@@ -208,8 +207,7 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
-    name = cstr::new(256);
-    name.add_char('c' as u8);
+    filesys = Some(fs::new());
     screen();
     prompt(true);
 }
@@ -272,9 +270,13 @@ unsafe fn parse() {
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
 		} else if(y.streq(&"pwd")) {
+		    putcstr(filesys.get().cwd.name);
+		    drawcstr(filesys.get().cwd.name, true, false);
+		    /*
 		    putstr(&"\nTEST pwd");
 		    drawstr(&"\nTEST pwd");
 		    putcstr(name);
+		    */
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
@@ -456,7 +458,6 @@ impl cstr {
 }
 
 struct fs {
-    root: dnode,
     cwd: dnode,
 }
 
@@ -464,7 +465,6 @@ impl fs {
     unsafe fn new() -> fs {
 	let rdnode = dnode::new(256, cstr::from_str(&"/"), '\0' as u8);
 	let this = fs {
-	    root: rdnode,
 	    cwd: rdnode,
 	};
 	this
