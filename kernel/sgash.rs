@@ -227,6 +227,9 @@ unsafe fn parse() {
 		    }
 		} else if(y.streq(&"ls")) {
 		    let mut i = 0;
+		    if filesys.get().cwd.len() == 0 {
+			putstr(&"ZERO");
+		    }
 		    while i < filesys.get().cwd.len() {
 			putstr(&"IS THIS WORKING");
 			let ptr = filesys.get().cwd.get_dir(i) as *dnode;
@@ -257,15 +260,15 @@ unsafe fn parse() {
 				return;
 			    }
 			    let cwdptr = &filesys.get().cwd as *dnode as uint;
-			    let dir = Some(dnode::new(256, word, cwdptr));
-			    let x = filesys.get().cwd.add_child((&dir.get() as *dnode) as uint);
-			    /*
+			    let dir = dnode::new(256, word, cwdptr);
+			    let x = filesys.get().cwd.add_child((&dir as *dnode) as uint);
+			    
 			    if x {
 				putstr(&"SUCCESS");
 			    } else {
 				putstr(&"Fail");
 			    }
-			    */
+			    
 			}
 			None => {
 			    putstr(&"Bad Directory Name\n");
@@ -502,6 +505,9 @@ impl dnode {
 	if (self.curptr == self.max) { return false; }
 	*(((self.children as uint)+self.curptr) as *mut uint) = x;
 	self.curptr += 1;
+	if self.curptr > 0 {
+	    putstr(&"INCR\n");
+	}
 	*(((self.children as uint)+self.curptr) as *mut uint) = '\0' as uint;
 	true
     }
