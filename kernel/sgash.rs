@@ -249,10 +249,14 @@ unsafe fn parse() {
 		    while i < cwd.len() {
 			putstr(&"IS THIS WORKING");
 			let dir = cwd.get_dir(i);
-			let ptr = dir as *dnode;
-			let t = *ptr;
-			putcstr(t.name);
-			drawcstr(t.name, true, false);
+			if dir != '\0' as u32 {
+			    let ptr = dir as *dnode;
+			    let t = *ptr;
+			    putcstr(t.name);
+			    drawcstr(t.name, true, false);
+			} else {
+			    putstr(&"Got something null");
+			}
 			i = i + 1;
 		    }
 		    /*
