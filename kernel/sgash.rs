@@ -16,6 +16,20 @@ pub static mut buffer: cstr = cstr {
 
 pub static mut filesys: Option<fs> = None;
 
+static ds: cstr = cstr {
+				p: 0 as *mut u8,
+				p_cstr_i: 0,
+				max: 0
+			      };
+
+pub static mut root: dnode = dnode{
+    children: 0 as *mut uint,
+    curptr: 0 as uint,
+    name: ds,
+    max: 0 as uint,
+    parent: 0 as uint,
+};
+
 pub fn putchar(key: char) {
     unsafe {
 	/*
@@ -187,6 +201,7 @@ fn screen() {
 pub unsafe fn init() {
     buffer = cstr::new(256);
     filesys = Some(fs::new());
+    root = dnode::new(256, cstr::from_str(&"\0"), '\0' as uint);
     screen();
     prompt(true);
 }
@@ -227,12 +242,17 @@ unsafe fn parse() {
 		    }
 		} else if(y.streq(&"ls")) {
 		    let mut i = 0;
-		    if filesys.get().cwd.len() == 0 {
+		    if root.len() == 0 {
 			putstr(&"ZERO");
+		    } else if root.len() < 0 {
+			putstr(&"Below");
+		    } else if root.len() < 0 {
+			putstr(&"Above");
 		    }
-		    while i < filesys.get().cwd.len() {
+		    while i < root.len() {
 			putstr(&"IS THIS WORKING");
-			let ptr = filesys.get().cwd.get_dir(i) as *dnode;
+			let dir = root.get_dir(i);
+			let ptr = dir as *dnode;
 			let t = *ptr;
 			putcstr(t.name);
 			drawcstr(t.name, true, false);
@@ -259,9 +279,9 @@ unsafe fn parse() {
 				drawstr(&"Bad Directory Name\n");
 				return;
 			    }
-			    let cwdptr = &filesys.get().cwd as *dnode as uint;
+			    let cwdptr = &root as *dnode as uint;
 			    let dir = dnode::new(256, word, cwdptr);
-			    let x = filesys.get().cwd.add_child((&dir as *dnode) as uint);
+			    let x = root.add_child((&dir as *dnode) as uint);
 			    
 			    if x {
 				putstr(&"SUCCESS");
