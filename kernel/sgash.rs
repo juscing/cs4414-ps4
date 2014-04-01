@@ -518,7 +518,7 @@ impl dnode {
 		max: y / 4 as uint,
 		parent: parent,
 	};
-	*(((this.children as u32)+this.curptr as u32) as *mut u32) = '\0' as u32;
+	*(((this.children as u32)+(4*this.curptr) as u32) as *mut u32) = '\0' as u32;
 	this
     }
     
@@ -526,19 +526,19 @@ impl dnode {
     
     unsafe fn add_child(&mut self, x: u32) -> bool{
 	if (self.curptr == self.max) { return false; }
-	*(((self.children as u32)+self.curptr as u32) as *mut u32) = x as u32;
+	*(((self.children as u32)+(4 * self.curptr) as u32) as *mut u32) = x;
 	self.curptr += 1;
 	if self.curptr > 0 {
 	    putstr(&"INCR\n");
 	}
-	*(((self.children as u32)+self.curptr as u32) as *mut u32) = '\0' as u32;
+	*(((self.children as u32)+(4 * self.curptr) as u32) as *mut u32) = '\0' as u32;
 	true
     }
     
     unsafe fn get_dir(&mut self, x: uint) -> u32{
 	if x >= self.curptr { return '\0' as u32; }
 	//raw memory address! just index it!
-	*(((self.children as u32)+x as u32) as *mut u32)
+	*(((self.children as u32)+(4*x) as u32) as *mut u32)
     }
     
     /*
