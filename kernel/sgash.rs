@@ -238,8 +238,33 @@ unsafe fn parse() {
 		    putstr(&"\nTEST rm");
 		    drawstr(&"\nTEST rm");
 		} else if(y.streq(&"mkdir")) {
+		    match buffer.getarg(' ', 1) {
+			Some(mut word) => {
+			    if word.len() < 1 {
+				putstr(&"Bad Directory Name\n");
+				drawstr(&"Bad Directory Name\n");
+				return;
+			    }
+			    let cwdptr = &filesys.get().cwd as *dnode as u8;
+			    let dir = Some(dnode::new(256, word, cwdptr));
+			    let x = filesys.get().cwd.add_child((&dir.get() as *dnode) as u8);
+			    /*
+			    if x {
+				putstr(&"SUCCESS");
+			    } else {
+				putstr(&"Fail");
+			    }
+			    */
+			}
+			None => {
+			    putstr(&"Bad Directory Name\n");
+			    drawstr(&"Bad Directory Name\n");
+			}
+		    }
+		    /*
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
+		    */
 		} else if(y.streq(&"pwd")) {
 		    putcstr(filesys.get().cwd.name);
 		    drawcstr(filesys.get().cwd.name, true, false);
