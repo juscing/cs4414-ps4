@@ -20,14 +20,6 @@ static ds: cstr = cstr {
     max: 0
 };
 
-pub static mut root: dnode = dnode{
-    children: 0 as *mut u32,
-    curptr: 0 as uint,
-    name: ds,
-    max: 0 as uint,
-    parent: '\0' as u32,
-};
-
 pub static mut cwd: dnode = dnode{
     children: 0 as *mut u32,
     curptr: 0 as uint,
@@ -206,8 +198,7 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
-    root = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
-    cwd = root;
+    cwd = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
     screen();
     prompt(true);
 }
@@ -285,7 +276,7 @@ unsafe fn parse() {
 				drawstr(&"Bad Directory Name\n");
 				return;
 			    }
-			    let cwdptr = &root as *dnode;
+			    let cwdptr = &cwd as *dnode;
 			    let dir = dnode::new(256, word, cwdptr as u32);
 			    let x = cwd.add_child((&dir as *dnode) as u32);
 			    
