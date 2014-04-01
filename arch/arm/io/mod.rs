@@ -78,7 +78,7 @@ pub unsafe fn init(width: u32, height: u32)
     sgash::drawstr(&"sgash> ");
     draw_cursor();
     
-    //Thiss apparently fixes stuff
+    //This apparently fixes stuff
     sgash::init();
 }
 

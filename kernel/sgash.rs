@@ -9,25 +9,31 @@ use super::super::platform::*;
 use kernel::memory::Allocator;
 
 pub static mut buffer: cstr = cstr {
-				p: 0 as *mut u8,
-				p_cstr_i: 0,
-				max: 0
-			      };
-
-pub static mut filesys: Option<fs> = None;
+    p: 0 as *mut u8,
+    p_cstr_i: 0,
+    max: 0
+};
 
 static ds: cstr = cstr {
-				p: 0 as *mut u8,
-				p_cstr_i: 0,
-				max: 0
-			      };
+    p: 0 as *mut u8,
+    p_cstr_i: 0,
+    max: 0
+};
 
 pub static mut root: dnode = dnode{
-    children: 0 as *mut uint,
+    children: 0 as *mut u32,
     curptr: 0 as uint,
     name: ds,
     max: 0 as uint,
-    parent: 0 as uint,
+    parent: '\0' as u32,
+};
+
+pub static mut cwd: dnode = dnode{
+    children: 0 as *mut u32,
+    curptr: 0 as uint,
+    name: ds,
+    max: 0 as uint,
+    parent: '\0' as u32,
 };
 
 pub fn putchar(key: char) {
@@ -200,8 +206,8 @@ fn screen() {
 
 pub unsafe fn init() {
     buffer = cstr::new(256);
-    filesys = Some(fs::new());
-    root = dnode::new(256, cstr::from_str(&"\0"), '\0' as uint);
+    root = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
+    cwd = root;
     screen();
     prompt(true);
 }
@@ -242,16 +248,16 @@ unsafe fn parse() {
 		    }
 		} else if(y.streq(&"ls")) {
 		    let mut i = 0;
-		    if root.len() == 0 {
+		    if cwd.len() == 0 {
 			putstr(&"ZERO");
-		    } else if root.len() < 0 {
+		    } else if cwd.len() < 0 {
 			putstr(&"Below");
-		    } else if root.len() < 0 {
+		    } else if cwd.len() > 0 {
 			putstr(&"Above");
 		    }
-		    while i < root.len() {
+		    while i < cwd.len() {
 			putstr(&"IS THIS WORKING");
-			let dir = root.get_dir(i);
+			let dir = cwd.get_dir(i);
 			let ptr = dir as *dnode;
 			let t = *ptr;
 			putcstr(t.name);
@@ -279,9 +285,9 @@ unsafe fn parse() {
 				drawstr(&"Bad Directory Name\n");
 				return;
 			    }
-			    let cwdptr = &root as *dnode as uint;
-			    let dir = dnode::new(256, word, cwdptr);
-			    let x = root.add_child((&dir as *dnode) as uint);
+			    let cwdptr = &root as *dnode;
+			    let dir = dnode::new(256, word, cwdptr as u32);
+			    let x = cwd.add_child((&dir as *dnode) as u32);
 			    
 			    if x {
 				putstr(&"SUCCESS");
@@ -300,8 +306,8 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
-		    putcstr(filesys.get().cwd.name);
-		    drawcstr(filesys.get().cwd.name, true, false);
+		    putcstr(cwd.name);
+		    drawcstr(cwd.name, true, false);
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
@@ -482,6 +488,7 @@ impl cstr {
 
 }
 
+/*
 struct fs {
     cwd: dnode,
 }
@@ -495,47 +502,48 @@ impl fs {
 	this
     }
 }
+*/
 
 struct dnode {
-    children: *mut uint,
+    children: *mut u32,
     curptr: uint,
     name: cstr,
     max: uint,
-    parent: uint,
+    parent: u32,
 }
 
 impl dnode {
-    unsafe fn new(size: uint, name: cstr, parent: uint) -> dnode {
+    unsafe fn new(size: uint, name: cstr, parent: u32) -> dnode {
 	// Sometimes this doesn't allocate enough memory and gets stuck...
 	let (x, y) = heap.alloc(size);
 	let this = dnode {
-		children: x as *mut uint,
+		children: x as *mut u32,
 		curptr: 0,
 		name: name,
 		max: y / 4 as uint,
 		parent: parent,
 	};
-	*(((this.children as uint)+this.curptr) as *mut uint) = '\0' as uint;
+	*(((this.children as u32)+this.curptr as u32) as *mut u32) = '\0' as u32;
 	this
     }
     
     fn len(&self) -> uint { self.curptr }
     
-    unsafe fn add_child(&mut self, x: uint) -> bool{
+    unsafe fn add_child(&mut self, x: u32) -> bool{
 	if (self.curptr == self.max) { return false; }
-	*(((self.children as uint)+self.curptr) as *mut uint) = x;
+	*(((self.children as u32)+self.curptr as u32) as *mut u32) = x as u32;
 	self.curptr += 1;
 	if self.curptr > 0 {
 	    putstr(&"INCR\n");
 	}
-	*(((self.children as uint)+self.curptr) as *mut uint) = '\0' as uint;
+	*(((self.children as u32)+self.curptr as u32) as *mut u32) = '\0' as u32;
 	true
     }
     
-    unsafe fn get_dir(&mut self, x: uint) -> u8{
-	if x >= self.curptr { return '\0' as u8; }
+    unsafe fn get_dir(&mut self, x: uint) -> u32{
+	if x >= self.curptr { return '\0' as u32; }
 	//raw memory address! just index it!
-	*(((self.children as u8)+x as u8) as *mut u8)
+	*(((self.children as u32)+x as u32) as *mut u32)
     }
     
     /*
