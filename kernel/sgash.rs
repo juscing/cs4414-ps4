@@ -16,27 +16,6 @@ pub static mut buffer: cstr = cstr {
 
 pub static mut filesys: Option<fs> = None;
 
-/*
-static temp: cstr = cstr {
-    p: 0 as *mut u8,
-    p_cstr_i: 0,
-    max: 0
-};			      
-			      
-static root: dnode = dnode {
-    children: 0 as *mut u8,
-    curptr: 0,
-    name: temp,
-    max: 0,
-    parent: 0,
-};
-
-pub static mut filesys: fs = fs {
-    root: root,
-    cwd: root,
-};
-*/
-
 pub fn putchar(key: char) {
     unsafe {
 	/*
@@ -220,12 +199,6 @@ unsafe fn prompt(startup: bool) {
 }
 
 unsafe fn parse() {
-	/*
-	if (buffer.streq(&"ls")) { 
-	    putstr( &"\na\tb");
-	    drawstr( &"\na    b");
-	};
-	*/
 	match buffer.getarg(' ', 0) {
 	    Some(y)        => {
 		if y.len() == 0 {
@@ -252,8 +225,6 @@ unsafe fn parse() {
 			    None => { break; }
 			}
 		    }
-		    //putstr(&"\nTEST echo");
-		    //drawstr(&"\nTEST echo");
 		} else if(y.streq(&"ls")) {
 		    putstr(&"\nTEST ls");
 		    drawstr(&"\nTEST ls");
@@ -272,11 +243,6 @@ unsafe fn parse() {
 		} else if(y.streq(&"pwd")) {
 		    putcstr(filesys.get().cwd.name);
 		    drawcstr(filesys.get().cwd.name, true, false);
-		    /*
-		    putstr(&"\nTEST pwd");
-		    drawstr(&"\nTEST pwd");
-		    putcstr(name);
-		    */
 		} else if(y.streq(&"wr")) {
 		    putstr(&"\nTEST wr");
 		    drawstr(&"\nTEST wr");
