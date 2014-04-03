@@ -9,92 +9,92 @@ use super::super::platform::*;
 use kernel::memory::Allocator;
 
 pub static mut buffer: cstr = cstr {
-    p: 0 as *mut u8,
-    p_cstr_i: 0,
-    max: 0
+	p: 0 as *mut u8,
+	p_cstr_i: 0,
+	max: 0
 };
 
 static ds: cstr = cstr {
-    p: 0 as *mut u8,
-    p_cstr_i: 0,
-    max: 0
+	p: 0 as *mut u8,
+	p_cstr_i: 0,
+	max: 0
 };
 
 pub static mut cwd: dnode = dnode{
-    children: 0 as *mut u32,
-    curptr: 0 as uint,
-    name: ds,
-    max: 0 as uint,
-    parent: '\0' as u32,
+	children: 0 as *mut u32,
+	curptr: 0 as uint,
+	name: ds,
+	max: 0 as uint,
+	parent: '\0' as u32,
 };
 
 pub fn putchar(key: char) {
-    unsafe {
+	unsafe {
 	/*
 	 * We need to include a blank asm call to prevent rustc
 	 * from optimizing this part out
 	 */
-	asm!("");
-	io::write_char(key, io::UART0);
-    }
+	 asm!("");
+	 io::write_char(key, io::UART0);
+	}
 }
 
 fn putstr(msg: &str) {
-    for c in slice::iter(as_bytes(msg)) {
-	putchar(*c as char);
-    }
+	for c in slice::iter(as_bytes(msg)) {
+		putchar(*c as char);
+	}
 }
 
 pub unsafe fn drawstr(msg: &str) {
-    let old_fg = super::super::io::FG_COLOR;
-    let mut x: u32 = 0x6699AAFF;
-    for c in slice::iter(as_bytes(msg)) {
-	x = (x << 8) + (x >> 24); 
-	super::super::io::set_fg(x);
-	drawchar(*c as char);
-    }
-    super::super::io::set_fg(old_fg);
+	let old_fg = super::super::io::FG_COLOR;
+	let mut x: u32 = 0x6699AAFF;
+	for c in slice::iter(as_bytes(msg)) {
+		x = (x << 8) + (x >> 24); 
+		super::super::io::set_fg(x);
+		drawchar(*c as char);
+	}
+	super::super::io::set_fg(old_fg);
 }
 
 pub unsafe fn drawcstr(s: cstr, newln: bool, space: bool) {
-    let old_fg = super::super::io::FG_COLOR;
-    let mut x: u32 = 0x6699AAFF;
-    let mut p = s.p as uint;
-    if newln {
-	drawchar('\n');
-    }
-    if space {
-	drawchar(' ');
-    }
-    while *(p as *char) != '\0' {
-	x = (x << 8) + (x >> 24); 
-	super::super::io::set_fg(x);
-	drawchar(*(p as *char));
-	p += 1;
-    }
-    super::super::io::set_fg(old_fg);
+	let old_fg = super::super::io::FG_COLOR;
+	let mut x: u32 = 0x6699AAFF;
+	let mut p = s.p as uint;
+	if newln {
+		drawchar('\n');
+	}
+	if space {
+		drawchar(' ');
+	}
+	while *(p as *char) != '\0' {
+		x = (x << 8) + (x >> 24); 
+		super::super::io::set_fg(x);
+		drawchar(*(p as *char));
+		p += 1;
+	}
+	super::super::io::set_fg(old_fg);
 }
 
 pub unsafe fn putcstr(s: cstr)
 {
-    let mut p = s.p as uint;
-    while *(p as *char) != '\0'
-    {
-	putchar(*(p as *char));
-	p += 1;
-    }
+	let mut p = s.p as uint;
+	while *(p as *char) != '\0'
+	{
+		putchar(*(p as *char));
+		p += 1;
+	}
 }
 
 pub unsafe fn parsekey(x: char) {
 	let x = x as u8;
 	// Set this to false to learn the keycodes of various keys!
 	// Key codes are printed backwards because life is hard
-		
+
 	if (true) {
 		match x { 
 			13		=>	{ 
-						parse();
-						prompt(false); 
+				parse();
+				prompt(false); 
 			}
 			127		=>	{ 
 				if (buffer.delete_char()) { 
@@ -125,21 +125,21 @@ unsafe fn drawchar(x: char)
 		return;
 	}
 
-    io::restore();
-    io::draw_char(x);
-    io::CURSOR_X += io::CURSOR_WIDTH;
-    if io::CURSOR_X >= io::SCREEN_WIDTH {io::CURSOR_X -= io::SCREEN_WIDTH; io::CURSOR_Y += io::CURSOR_HEIGHT}
-    io::backup();
-    io::draw_cursor();
+	io::restore();
+	io::draw_char(x);
+	io::CURSOR_X += io::CURSOR_WIDTH;
+	if io::CURSOR_X >= io::SCREEN_WIDTH {io::CURSOR_X -= io::SCREEN_WIDTH; io::CURSOR_Y += io::CURSOR_HEIGHT}
+	io::backup();
+	io::draw_cursor();
 }
 
 unsafe fn backspace()
 {
-    io::restore();
-    io::CURSOR_X -= io::CURSOR_WIDTH;
-    io::draw_char(' ');
-    io::backup();
-    io::draw_cursor();
+	io::restore();
+	io::CURSOR_X -= io::CURSOR_WIDTH;
+	io::draw_char(' ');
+	io::backup();
+	io::draw_cursor();
 }
 
 fn keycode(x: u8) {
@@ -197,10 +197,10 @@ fn screen() {
 }
 
 pub unsafe fn init() {
-    buffer = cstr::new(256);
-    cwd = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
-    screen();
-    prompt(true);
+	buffer = cstr::new(256);
+	cwd = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
+	screen();
+	prompt(true);
 }
 
 unsafe fn prompt(startup: bool) {
@@ -212,103 +212,153 @@ unsafe fn prompt(startup: bool) {
 
 unsafe fn parse() {
 	match buffer.getarg(' ', 0) {
-	    Some(y)        => {
-		if y.len() == 0 {
-		    return;
-		}
+		Some(y)        => {
+			if y.len() == 0 {
+				return;
+			}
 		// COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
 		if(y.streq(&"echo")) {
-		    let mut i = 1;
-		    putstr(&"\n");
-		    loop {
-			match buffer.getarg(' ', i) {
-			    Some(word) => {
-				if i != 1 {
-				    putstr(&" ");
+			let mut i = 1;
+			putstr(&"\n");
+			loop {
+				match buffer.getarg(' ', i) {
+					Some(word) => {
+						if i != 1 {
+							putstr(&" ");
+						}
+						putcstr(word);
+						if i == 1 {
+							drawcstr(word, true, false);
+						} else {
+							drawcstr(word, false, true);
+						}
+						i+=1;
+					}
+					None => { break; }
 				}
-				putcstr(word);
-				if i == 1 {
-				    drawcstr(word, true, false);
-				} else {
-				    drawcstr(word, false, true);
-				}
-				i+=1;
-			    }
-			    None => { break; }
 			}
-		    }
 		} else if(y.streq(&"ls")) {
-		    let mut i = 0;
-		    if cwd.len() == 0 {
-			putstr(&"ZERO");
-		    } else if cwd.len() < 0 {
-			putstr(&"Below");
-		    } else if cwd.len() > 0 {
-			putstr(&"Above");
-		    }
-		    while i < cwd.len() {
-			putstr(&"IS THIS WORKING");
-			let dir = cwd.get_dir(i);
-			if dir != '\0' as u32 {
-			    let ptr = dir as *dnode;
-			    let t = *ptr;
-			    putcstr(t.name);
-			    drawcstr(t.name, true, false);
-			} else {
-			    putstr(&"Got something null");
+			let mut i = 0;
+			if cwd.len() == 0 {
+				putstr(&"ZERO");
+			} else if cwd.len() < 0 {
+				putstr(&"Below");
+			} else if cwd.len() > 0 {
+				putstr(&"Above");
 			}
-			i = i + 1;
-		    }
+			while i < cwd.len() {
+				putstr(&"IS THIS WORKING");
+				let dir = cwd.get_dir(i);
+				if dir != '\0' as u32 {
+					let ptr = dir as *dnode;
+					let t = *ptr;
+					putcstr(t.name);
+					drawcstr(t.name, true, false);
+				} else {
+					putstr(&"Got something null");
+				}
+				i = i + 1;
+			}
 		    /*
 		    putstr(&"\nTEST ls");
 		    drawstr(&"\nTEST ls");
 		    */
 		} else if(y.streq(&"cat")) {
-		    putstr(&"\nTEST cat");
-		    drawstr(&"\nTEST cat");
+			putstr(&"\nTEST cat");
+			drawstr(&"\nTEST cat");
 		} else if(y.streq(&"cd")) {
-		    putstr(&"\nTEST cd");
-		    drawstr(&"\nTEST cd");
+			match buffer.getarg(' ', 1) {
+				Some(mut word) => {
+					if(word.eq(&cstr::from_str(&".."))) {
+						let padre = cwd.parent as *dnode;
+						cwd = *padre;
+						putstr(&"Current Directory is ");
+						putcstr(cwd.name);
+						drawstr(&"Current Directory is ");
+						drawcstr(cwd.name,true,false);
+					}
+
+
+					let mut i = 0;
+					if cwd.len() == 0 {
+						putstr(&"ZERO");
+					} else if cwd.len() < 0 {
+						putstr(&"Below");
+					} else if cwd.len() > 0 {
+						putstr(&"Above");
+					}
+					let mut found = false;
+					while i < cwd.len() {
+						let dir = cwd.get_dir(i);
+						if dir != '\0' as u32 {
+							let ptr = dir as *dnode;
+							let t = *ptr;
+							if (word.eq(&t.name)) {
+								cwd = *ptr;
+								found = true;
+							}
+						} else {
+							putstr(&"Got something null");
+						}
+						i = i + 1;
+					}
+					if(found) {
+						putstr(&"Current Directory is ");
+						putcstr(cwd.name);
+						drawstr(&"Current Directory is ");
+						drawcstr(cwd.name,true,false);
+					}
+					else {
+
+					}
+				}
+				None => {
+					putstr(&"Bad Directory Name\n");
+					drawstr(&"Bad Directory Name\n");
+				}
+			}
+
+
 		} else if(y.streq(&"rm")) {
-		    putstr(&"\nTEST rm");
-		    drawstr(&"\nTEST rm");
+			putstr(&"\nTEST rm");
+			drawstr(&"\nTEST rm");
 		} else if(y.streq(&"mkdir")) {
-		    match buffer.getarg(' ', 1) {
-			Some(mut word) => {
-			    if word.len() < 1 {
-				putstr(&"Bad Directory Name\n");
-				drawstr(&"Bad Directory Name\n");
-				return;
-			    }
-			    let cwdptr = &cwd as *dnode;
-			    let dir = dnode::new(256, word, cwdptr as u32);
-			    let x = cwd.add_child((&dir as *dnode) as u32);
-			    
-			    if x {
-				putstr(&"SUCCESS");
-			    } else {
-				putstr(&"Fail");
-			    }
-			    
+			match buffer.getarg(' ', 1) {
+				Some(mut word) => {
+					if word.len() < 1 {
+						putstr(&"Bad Directory Name\n");
+						drawstr(&"Bad Directory Name\n");
+						return;
+					}
+					let cwdptr = &cwd as *dnode;
+					let dir = dnode::new(256, word, cwdptr as u32);
+					let x = cwd.add_child((&dir as *dnode) as u32);
+
+					if x {
+						putstr(&"SUCCESS");
+					} else {
+						putstr(&"Fail");
+					}
+
+				}
+				None => {
+					putstr(&"Bad Directory Name\n");
+					drawstr(&"Bad Directory Name\n");
+				}
 			}
-			None => {
-			    putstr(&"Bad Directory Name\n");
-			    drawstr(&"Bad Directory Name\n");
-			}
-		    }
 		    /*
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
-		    putcstr(cwd.name);
-		    drawcstr(cwd.name, true, false);
+			putcstr(cwd.name);
+			drawcstr(cwd.name, true, false);
 		} else if(y.streq(&"wr")) {
-		    putstr(&"\nTEST wr");
-		    drawstr(&"\nTEST wr");
+			putstr(&"\nTEST wr");
+			drawstr(&"\nTEST wr");
 		} else {
-		    putstr(&"\nUnrecognized Command!");
-		    drawstr(&"\nUnrecognized Command!");
+			putstr(&"\nUnrecognized Command!");
+			drawstr(&"\nUnrecognized Command!");
 		}
 		/*
 		if(y.streq(&"cat")) {
@@ -333,10 +383,10 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST YO");
 		}
 		*/
-	    }
-	    None        => { }
-	};
-	buffer.reset();
+	}
+	None        => { }
+};
+buffer.reset();
 }
 
 /* BUFFER MODIFICATION FUNCTIONS */
@@ -360,7 +410,7 @@ impl cstr {
 		this
 	}
 
-#[allow(dead_code)]
+	#[allow(dead_code)]
 	unsafe fn from_str(s: &str) -> cstr {
 		let mut this = cstr::new(256);
 		for c in slice::iter(as_bytes(s)) {
@@ -369,12 +419,12 @@ impl cstr {
 		this
 	}
 
-#[allow(dead_code)]
+	#[allow(dead_code)]
 	fn len(&self) -> uint { self.p_cstr_i }
 
 	// HELP THIS DOESN'T WORK THERE IS NO GARBAGE COLLECTION!!!
 	// -- TODO: exchange_malloc, exchange_free
-#[allow(dead_code)]
+	#[allow(dead_code)]
 	unsafe fn destroy(&self) { heap.free(self.p); }
 
 	unsafe fn add_char(&mut self, x: u8) -> bool{
@@ -386,7 +436,7 @@ impl cstr {
 	}
 	
 	unsafe fn get_char(&mut self, x: uint) -> char{
-	    if x >= self.p_cstr_i { return '\0'; }
+		if x >= self.p_cstr_i { return '\0'; }
 	    //raw memory address! just index it!
 	    *(((self.p as uint)+x) as *mut char)
 	}
@@ -403,7 +453,7 @@ impl cstr {
 		*(self.p as *mut char) = '\0';
 	}
 
-#[allow(dead_code)]
+	#[allow(dead_code)]
 	unsafe fn eq(&self, other: &cstr) -> bool {
 		if (self.len() != other.len()) { return false; }
 		else {
@@ -457,7 +507,7 @@ impl cstr {
 		}
 	}
 
-#[allow(dead_code)]
+	#[allow(dead_code)]
 	unsafe fn split(&self, delim: char) -> (cstr, cstr) {
 		let mut selfp: uint = self.p as uint;
 		let mut beg = cstr::new(256);
@@ -500,15 +550,15 @@ impl fs {
 */
 
 struct dnode {
-    children: *mut u32,
-    curptr: uint,
-    name: cstr,
-    max: uint,
-    parent: u32,
+	children: *mut u32,
+	curptr: uint,
+	name: cstr,
+	max: uint,
+	parent: u32,
 }
 
 impl dnode {
-    unsafe fn new(size: uint, name: cstr, parent: u32) -> dnode {
+	unsafe fn new(size: uint, name: cstr, parent: u32) -> dnode {
 	// Sometimes this doesn't allocate enough memory and gets stuck...
 	let (x, y) = heap.alloc(size);
 	let this = dnode {
@@ -520,27 +570,27 @@ impl dnode {
 	};
 	*(((this.children as u32)+(4*this.curptr) as u32) as *mut u32) = '\0' as u32;
 	this
-    }
-    
-    fn len(&self) -> uint { self.curptr }
-    
-    unsafe fn add_child(&mut self, x: u32) -> bool{
+}
+
+fn len(&self) -> uint { self.curptr }
+
+unsafe fn add_child(&mut self, x: u32) -> bool{
 	if (self.curptr == self.max) { return false; }
 	*(((self.children as u32)+(4 * self.curptr) as u32) as *mut u32) = x;
 	self.curptr += 1;
 	if self.curptr > 0 {
-	    putstr(&"INCR\n");
+		putstr(&"INCR\n");
 	}
 	*(((self.children as u32)+(4 * self.curptr) as u32) as *mut u32) = '\0' as u32;
 	true
-    }
-    
-    unsafe fn get_dir(&mut self, x: uint) -> u32{
+}
+
+unsafe fn get_dir(&mut self, x: uint) -> u32{
 	if x >= self.curptr { return '\0' as u32; }
 	//raw memory address! just index it!
 	*(((self.children as u32)+(4*x) as u32) as *mut u32)
-    }
-    
+}
+
     /*
     unsafe fn delete_item(&mut self) -> bool {
 	if (self.curptr == 0) { return false; }
@@ -552,20 +602,20 @@ impl dnode {
 }
 
 struct fnode {
-    data: cstr,
-    curptr: uint,
-    name: cstr,
-    parent: u8,
+	data: cstr,
+	curptr: uint,
+	name: cstr,
+	parent: u8,
 }
 
 impl fnode {
-    unsafe fn new(size: uint, name: cstr, data: cstr, parent: u8) -> fnode {
-	let this = fnode {
-	    data: data,
-	    curptr: 0,
-	    name: name,
-	    parent: parent,
-	};
-	this
-    }
+	unsafe fn new(size: uint, name: cstr, data: cstr, parent: u8) -> fnode {
+		let this = fnode {
+			data: data,
+			curptr: 0,
+			name: name,
+			parent: parent,
+		};
+		this
+	}
 }
