@@ -20,26 +20,26 @@ pub fn putchar(key: char) {
 	 * We need to include a blank asm call to prevent rustc
 	 * from optimizing this part out
 	 */
-	asm!("");
-	io::write_char(key, io::UART0);
-    }
+    asm!("");
+    io::write_char(key, io::UART0);
+}
 }
 
 fn putstr(msg: &str) {
     for c in slice::iter(as_bytes(msg)) {
-	putchar(*c as char);
-    }	
+       putchar(*c as char);
+   }	
 }
 
 pub unsafe fn drawstr(msg: &str) {
     let old_fg = super::super::io::FG_COLOR;
     let mut x: u32 = 0x6699AAFF;
     for c in slice::iter(as_bytes(msg)) {
-	x = (x << 8) + (x >> 24); 
-	super::super::io::set_fg(x);
-	drawchar(*c as char);
-    }
-    super::super::io::set_fg(old_fg);
+       x = (x << 8) + (x >> 24); 
+       super::super::io::set_fg(x);
+       drawchar(*c as char);
+   }
+   super::super::io::set_fg(old_fg);
 }
 
 pub unsafe fn drawcstr(s: cstr, newln: bool, space: bool) {
@@ -112,11 +112,11 @@ unsafe fn backspace()
 {
     io::restore();
     if (io::CURSOR_X >= io::CURSOR_WIDTH) { 
-	io::CURSOR_X -= io::CURSOR_WIDTH;
-	io::draw_char(' ');
-    }
-    io::backup();
-    io::draw_cursor();
+       io::CURSOR_X -= io::CURSOR_WIDTH;
+       io::draw_char(' ');
+   }
+   io::backup();
+   io::draw_cursor();
 }
 
 pub unsafe fn parsekey(x: char) {
@@ -125,26 +125,26 @@ pub unsafe fn parsekey(x: char) {
     // Key codes are printed backwards because life is hard
 
     match x { 
-	13		=>	{
-	    parse();
-	    prompt(false);
-	}
-	127		=>	{
-	if buffer.delete_char() {
-		putchar('');
-		putchar(' ');
-		putchar(''); 
-		backspace();
-	    }
-	}
-	_		=>	{ 
+       13		=>	{
+           parse();
+           prompt(false);
+       }
+       127		=>	{
+           if buffer.delete_char() {
+              putchar('');
+              putchar(' ');
+              putchar(''); 
+              backspace();
+          }
+      }
+      _		=>	{ 
 	    // if io::CURSOR_X < io::SCREEN_WIDTH-io::CURSOR_WIDTH {
-	    if buffer.add_char(x as u8) {
-		putchar(x as char);
-		drawchar(x as char);
-	    }
-	}
-    }
+           if buffer.add_char(x as u8) {
+              putchar(x as char);
+              drawchar(x as char);
+          }
+      }
+  }
 }
 
 fn screen() {
@@ -208,7 +208,7 @@ unsafe fn prompt(startup: bool) {
 // PARSING
 unsafe fn parse() {
     match buffer.getarg(' ', 0) {
-	Some(y) => {
+       Some(y) => {
 	    /*
 	    if y.len() == 0 {
 		return;
@@ -239,7 +239,7 @@ unsafe fn parse() {
 	    putstr(&"DERP");
 	}
 	None => { }
-    }
+}
 }
 
 struct cstr {
