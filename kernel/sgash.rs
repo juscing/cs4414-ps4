@@ -8,7 +8,7 @@ use kernel::*;
 use super::super::platform::*;
 use kernel::memory::Allocator;
 use kernel::vec::Vec;
-use kernel::fs::*;
+use kernel::fs;
 
 pub static mut buffer: cstr = cstr {
 	p: 0 as *mut u8,
