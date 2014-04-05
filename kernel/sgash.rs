@@ -22,12 +22,12 @@ static ds: cstr = cstr {
 	max: 0
 };
 
-pub static mut cwd: dnode = dnode{
-	children: 0 as *mut u32,
-	curptr: 0 as uint,
-	name: ds,
-	max: 0 as uint,
-	parent: '\0' as u32,
+pub static mut cwd: fs::directory = fs::directory{
+    name: '\0' as cstr,
+    parent: '\0' as *fs::directory,
+    fchildren: '\0' as Vec,
+    dchildren: '\0' as Vec,
+
 };
 
 pub fn putchar(key: char) {
@@ -200,7 +200,7 @@ fn screen() {
 
 pub unsafe fn init() {
 	buffer = cstr::new(256);
-	cwd = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
+	cwd = fs::directory::new(cstr::from_str("C"), '\0' as *fs::directory);
 	screen();
 	prompt(true);
 	let mut x = Vec::new();
@@ -243,7 +243,7 @@ unsafe fn parse() {
 			}
 		} else if(y.streq(&"ls")) {
 			let mut i = 0;
-			if cwd.len() == 0 {
+			/*if cwd.len() == 0 {
 				putstr(&"ZERO");
 			} else if cwd.len() < 0 {
 				putstr(&"Below");
@@ -262,7 +262,7 @@ unsafe fn parse() {
 					putstr(&"Got something null");
 				}
 				i = i + 1;
-			}
+			}*/
 		    /*
 		    putstr(&"\nTEST ls");
 		    drawstr(&"\nTEST ls");
@@ -271,7 +271,7 @@ unsafe fn parse() {
 			putstr(&"\nTEST cat");
 			drawstr(&"\nTEST cat");
 		} else if(y.streq(&"cd")) {
-			match buffer.getarg(' ', 1) {
+			/*match buffer.getarg(' ', 1) {
 				Some(mut word) => {
 					if(word.eq(&cstr::from_str(&".."))) {
 						let padre = cwd.parent as *dnode;
@@ -321,13 +321,14 @@ unsafe fn parse() {
 					drawstr(&"Bad Directory Name\n");
 				}
 			}
+            */
 
 
 		} else if(y.streq(&"rm")) {
 			putstr(&"\nTEST rm");
 			drawstr(&"\nTEST rm");
 		} else if(y.streq(&"mkdir")) {
-			match buffer.getarg(' ', 1) {
+			/*match buffer.getarg(' ', 1) {
 				Some(mut word) => {
 					if word.len() < 1 {
 						putstr(&"Bad Directory Name\n");
@@ -349,14 +350,14 @@ unsafe fn parse() {
 					putstr(&"Bad Directory Name\n");
 					drawstr(&"Bad Directory Name\n");
 				}
-			}
+			}*/
 		    /*
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
-			putcstr(cwd.name);
-			drawcstr(cwd.name, true, false);
+			/*putcstr(cwd.name);
+			drawcstr(cwd.name, true, false);*/
 		} else if(y.streq(&"wr")) {
 			putstr(&"\nTEST wr");
 			drawstr(&"\nTEST wr");
