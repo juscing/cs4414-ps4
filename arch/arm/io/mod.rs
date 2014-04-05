@@ -71,10 +71,13 @@ pub unsafe fn init(width: u32, height: u32)
 	ws(0x10120018, 0x82B);
 
     }
-    set_bg(0x222C38);
-    set_fg(0xFAFCFF);
-    set_cursor_color(0xFAFCFF);
+    //PROBLEM 2
+    //PLEASE NOTE THESE ARE NOT STANDARD RGB COLORS! THEY ARE BGR!
+    set_bg(0x68320D);
+    set_fg(0x0370FF);
+    set_cursor_color(0xDAF2F5);
     fill_bg();
+    //PROBLEM 1
     sgash::drawstr(&"sgash> ");
     sgash::init();
     //draw_cursor();
