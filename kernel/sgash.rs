@@ -8,6 +8,12 @@ use kernel::*;
 use super::super::platform::*;
 use kernel::memory::Allocator;
 
+pub static mut buffer: cstr = cstr {
+	p: 0 as *mut u8,
+	p_cstr_i: 0,
+	max: 0
+};
+
 pub fn putchar(key: char) {
     unsafe {
 	/*
@@ -70,14 +76,17 @@ pub unsafe fn parsekey(x: char) {
 	13		=>	{ 
 	    prompt(false);
 	}
-	127		=>	{ 
-	    putchar('');
-	    putchar(' ');
-	    putchar(''); 
-	    backspace();
+	127		=>	{
+	if buffer.delete_char() {
+		putchar('');
+		putchar(' ');
+		putchar(''); 
+		backspace();
+	    }
 	}
 	_		=>	{ 
-	    if io::CURSOR_X < io::SCREEN_WIDTH-io::CURSOR_WIDTH {
+	    // if io::CURSOR_X < io::SCREEN_WIDTH-io::CURSOR_WIDTH {
+	    if buffer.add_char(x as u8) {
 		putchar(x as char);
 		drawchar(x as char);
 	    }
@@ -130,6 +139,7 @@ fn screen() {
 }
 
 pub unsafe fn init() {
+    buffer = cstr::new(256);
     screen();
     prompt(true);
 }
@@ -139,7 +149,7 @@ unsafe fn prompt(startup: bool) {
     //PROBLEM 1
     putstr(&"\nsgash> ");
     if !startup {drawstr(&"\nsgash> ");}
-    //buffer.reset();
+    buffer.reset();
 }
 
 struct cstr {
