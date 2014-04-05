@@ -168,6 +168,40 @@ unsafe fn prompt(startup: bool) {
     buffer.reset();
 }
 
+// PARSING
+unsafe fn parse() {
+	match buffer.getarg(' ', 0) {
+		Some(y)        => {
+			if y.len() == 0 {
+				return;
+			}
+		// COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
+		if(y.streq(&"echo")) {
+			let mut i = 1;
+			putstr(&"\n");
+			loop {
+				match buffer.getarg(' ', i) {
+					Some(word) => {
+						if i != 1 {
+							putstr(&" ");
+						}
+						putcstr(word);
+						if i == 1 {
+							drawcstr(word, true, false);
+						} else {
+							drawcstr(word, false, true);
+						}
+						i+=1;
+					}
+					None => { break; }
+				}
+			}
+		}
+		}
+		None => { }
+	}
+}
+
 struct cstr {
 	p: *mut u8,
 	p_cstr_i: uint,
