@@ -1,49 +1,52 @@
 /* kernel::fs.rs */
 
 use core::*;
+use kernel::*;
 use core::str::*;
 use core::option::{Some, Option, None}; // Match statement
 use core::iter::Iterator;
-use core::vec::Vec;
+use kernel::vec::Vec;
 use super::super::platform::*;
 use kernel::sgash::cstr;
 
-
-struct directory {
+pub struct directory {
+    name: cstr,
     parent: *directory,
     fchildren: Vec<*file>,
     dchildren: Vec<*directory>,
 }
 
-
 impl directory {
-    unsafe fn new(pointer: *directory) -> directory {
+    pub unsafe fn new(title: cstr, parent: *directory) -> directory {
         let this = directory {
-            parent = pointer,
-            fchildren = Vec::new();
-            dchildren = Vec::new();
+            name: title,
+            fchildren: Vec::new(),
+            dchildren: Vec::new(),
+            parent: parent,
         };
         this
     }
 }
 
-struct file {
+pub struct file {
+    name: cstr,
     parent: *directory,
     content: cstr,
 }
 
 impl file {
-    unsafe fn new(pointer: *directory, cont: cstr) -> file {
+    pub unsafe fn new(title: cstr, parent: *directory, content: cstr) -> file {
         let this = file {
-            parent = pointer,
-            content = cont
+            name: title,
+            content: content,
+            parent: parent,
         };
         this
     }
-
 }
 
 
+/*
 pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
 {
     if dir.isLeaf() || file == ""
@@ -97,3 +100,4 @@ pub fn new(node: *tree_node, dir: cstr, name: cstr) -> bool
     return false;
 
 }
+*/

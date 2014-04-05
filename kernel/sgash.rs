@@ -394,8 +394,7 @@ buffer.reset();
 }
 
 /* BUFFER MODIFICATION FUNCTIONS */
-
-struct cstr {
+pub struct cstr {
 	p: *mut u8,
 	p_cstr_i: uint,
 	max: uint 
