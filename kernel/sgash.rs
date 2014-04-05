@@ -23,10 +23,14 @@ static ds: cstr = cstr {
 };
 
 pub static mut cwd: fs::directory = fs::directory{
-    name: '\0' as cstr,
+    name: cstr {
+        p: 0 as *mut u8,
+        p_cstr_i: 0,
+        max: 0 
+    },
     parent: '\0' as *fs::directory,
-    fchildren: '\0' as Vec,
-    dchildren: '\0' as Vec,
+    fchildren: Vec { len: 0, cap: 0, ptr: 0 as *mut fs::file },
+    dchildren: Vec { len: 0, cap: 0, ptr: 0 as *mut fs::directory },
 
 };
 
