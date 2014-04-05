@@ -132,5 +132,13 @@ fn screen() {
 
 pub unsafe fn init() {
     screen();
+    prompt();
 }
 
+// PROMPTING
+unsafe fn prompt() {
+    //PROBLEM 1
+    putstr(&"\nsgash> ");
+    drawstr(&"\nsgash> ");
+    //buffer.reset();
+}
