@@ -33,7 +33,7 @@ pub unsafe fn init(width: u32, height: u32)
 {
     SCREEN_WIDTH = width;
     SCREEN_HEIGHT= height;
-    sgash::init();
+    
     
     /* For the following magic values, see 
      * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0225d/CACHEDGD.html
@@ -74,8 +74,10 @@ pub unsafe fn init(width: u32, height: u32)
     set_bg(0x222C38);
     set_fg(0xFAFCFF);
     set_cursor_color(0xFAFCFF);
-    fill_bg();	
-    draw_cursor();
+    fill_bg();
+    sgash::drawstr(&"sgash> ");
+    sgash::init();
+    //draw_cursor();
 }
 
 pub unsafe fn write_char(c: char, address: *mut u32) {

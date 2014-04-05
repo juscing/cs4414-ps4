@@ -68,8 +68,7 @@ pub unsafe fn parsekey(x: char) {
 
     match x { 
 	13		=>	{ 
-	    putstr(&"\n");
-	    drawstr(&"\n");
+	    prompt(false);
 	}
 	127		=>	{ 
 	    putchar('');
@@ -132,13 +131,13 @@ fn screen() {
 
 pub unsafe fn init() {
     screen();
-    prompt();
+    prompt(true);
 }
 
 // PROMPTING
-unsafe fn prompt() {
+unsafe fn prompt(startup: bool) {
     //PROBLEM 1
     putstr(&"\nsgash> ");
-    drawstr(&"\nsgash> ");
+    if !startup {drawstr(&"\nsgash> ");}
     //buffer.reset();
 }
