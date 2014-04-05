@@ -6,6 +6,42 @@ use core::option::{Some, Option, None}; // Match statement
 use core::iter::Iterator;
 use core::vec::Vec;
 use super::super::platform::*;
+use kernel::sgash::cstr;
+
+
+struct directory {
+    parent: *directory,
+    fchildren: Vec<*file>,
+    dchildren: Vec<*directory>,
+}
+
+
+impl directory {
+    unsafe fn new(pointer: *directory) -> directory {
+        let this = directory {
+            parent = pointer,
+            fchildren = Vec::new();
+            dchildren = Vec::new();
+        };
+        this
+    }
+}
+
+struct file {
+    parent: *directory,
+    content: cstr,
+}
+
+impl file {
+    unsafe fn new(pointer: *directory, cont: cstr) -> file {
+        let this = file {
+            parent = pointer,
+            content = cont
+        };
+        this
+    }
+
+}
 
 
 pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
