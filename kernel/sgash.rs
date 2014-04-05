@@ -41,6 +41,42 @@ pub unsafe fn drawstr(msg: &str) {
     }
     super::super::io::set_fg(old_fg);
 }
+
+pub unsafe fn drawcstr(s: cstr, newln: bool, space: bool) {
+	let old_fg = super::super::io::FG_COLOR;
+	let mut x: u32 = 0x6699AAFF;
+	let mut p = s.p as uint;
+	if newln {
+		drawchar('\n');
+	}
+	if space {
+		drawchar(' ');
+	}
+	while *(p as *char) != '\0' {
+		x = (x << 8) + (x >> 24); 
+		super::super::io::set_fg(x);
+		drawchar(*(p as *char));
+		p += 1;
+	}
+	super::super::io::set_fg(old_fg);
+}
+
+pub unsafe fn putcstr(s: cstr, newln: bool, space: bool)
+{
+	if newln {
+		putchar('\n');
+	}
+	if space {
+		putchar(' ');
+	}
+	let mut p = s.p as uint;
+	while *(p as *char) != '\0'
+	{
+		putchar(*(p as *char));
+		p += 1;
+	}
+}
+
 /*
 unsafe fn drawchar(x: char)
 {
@@ -89,7 +125,8 @@ pub unsafe fn parsekey(x: char) {
     // Key codes are printed backwards because life is hard
 
     match x { 
-	13		=>	{ 
+	13		=>	{
+	    parse();
 	    prompt(false);
 	}
 	127		=>	{
@@ -170,36 +207,39 @@ unsafe fn prompt(startup: bool) {
 
 // PARSING
 unsafe fn parse() {
-	match buffer.getarg(' ', 0) {
-		Some(y)        => {
-			if y.len() == 0 {
-				return;
+    match buffer.getarg(' ', 0) {
+	Some(y) => {
+	    /*
+	    if y.len() == 0 {
+		return;
+	    }
+	    // COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
+	    if(y.streq(&"echo")) {
+		let mut i = 1;
+		putstr(&"\n");
+		loop {
+		    match buffer.getarg(' ', i) {
+			Some(word) => {
+			    if i != 1 {
+				putstr(&" ");
+			    }
+			    putcstr(word, false, false);
+			    if i == 1 {
+				drawcstr(word, true, false);
+			    } else {
+				drawcstr(word, false, true);
+			    }
+			    i+=1;
 			}
-		// COMMANDS echo, ls, cat, cd, rm, mkdir, pwd, wr
-		if(y.streq(&"echo")) {
-			let mut i = 1;
-			putstr(&"\n");
-			loop {
-				match buffer.getarg(' ', i) {
-					Some(word) => {
-						if i != 1 {
-							putstr(&" ");
-						}
-						putcstr(word);
-						if i == 1 {
-							drawcstr(word, true, false);
-						} else {
-							drawcstr(word, false, true);
-						}
-						i+=1;
-					}
-					None => { break; }
-				}
-			}
+			None => { break; }
+		    }
 		}
-		}
-		None => { }
+	    }
+	    */
+	    putstr(&"DERP");
 	}
+	None => { }
+    }
 }
 
 struct cstr {
