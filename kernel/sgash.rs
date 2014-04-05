@@ -7,6 +7,7 @@ use core::iter::Iterator;
 use kernel::*;
 use super::super::platform::*;
 use kernel::memory::Allocator;
+use kernel::vec::Vec;
 
 pub static mut buffer: cstr = cstr {
 	p: 0 as *mut u8,
@@ -201,6 +202,8 @@ pub unsafe fn init() {
 	cwd = dnode::new(256, cstr::from_str(&"/"), '\0' as u32);
 	screen();
 	prompt(true);
+	let mut x = Vec::new();
+	x.push('c');
 }
 
 unsafe fn prompt(startup: bool) {
