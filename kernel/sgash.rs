@@ -41,7 +41,7 @@ pub unsafe fn drawstr(msg: &str) {
     }
     super::super::io::set_fg(old_fg);
 }
-
+/*
 unsafe fn drawchar(x: char)
 {
     io::restore();
@@ -54,6 +54,22 @@ unsafe fn drawchar(x: char)
     }
     io::backup();
     io::draw_cursor();
+}
+*/
+unsafe fn drawchar(x: char)
+{
+	if x == '\n' {
+		io::CURSOR_Y += io::CURSOR_HEIGHT;
+		io::CURSOR_X = 0u32;
+		return;
+	}
+
+	io::restore();
+	io::draw_char(x);
+	io::CURSOR_X += io::CURSOR_WIDTH;
+	if io::CURSOR_X >= io::SCREEN_WIDTH {io::CURSOR_X -= io::SCREEN_WIDTH; io::CURSOR_Y += io::CURSOR_HEIGHT}
+	io::backup();
+	io::draw_cursor();
 }
 
 unsafe fn backspace()
