@@ -208,8 +208,6 @@ pub unsafe fn init() {
 	cwd = fs::directory::new(cstr::from_str("/"), '\0' as *fs::directory);
 	screen();
 	prompt(true);
-	let mut x = Vec::new();
-	x.push('c');
 }
 
 unsafe fn prompt(startup: bool) {
@@ -458,6 +456,64 @@ unsafe fn parse() {
 			drawstr(&"\n Please give the cow something to say!");
 		    }
 
+		} /* else if y.streq(&"bg") {
+		    match buffer.getarg(' ', 1) {
+			Some(color) => {
+			    if color.streq(&"red") {
+				io::reset();
+				io::set_bg(0x0000FF);
+				io::fill_bg();
+			    } else if color.streq(&"blue") {
+				io::reset();
+				io::set_bg(0x68320D);
+				io::fill_bg();
+			    } else if color.streq(&"green") {
+				io::reset();
+				io::set_bg(0x00FF00);
+				io::fill_bg();
+			    } else if color.streq(&"orange") {
+				io::reset();
+				io::set_bg(0x0370FF);
+				io::fill_bg();
+			    } else {
+				putstr(&"\nNot a valid color");
+				drawstr(&"\nNot a valid color");
+			    }
+			}
+			None => {
+			    putstr(&"\nNot a valid color");
+			    drawstr(&"\nNot a valid color");
+			}
+		    }
+		} */ else if y.streq(&"font") {
+		    match buffer.getarg(' ', 1) {
+			Some(color) => {
+			    if color.streq(&"red") {
+				//io::reset();
+				io::set_fg(0x0000FF);
+				//io::fill_bg();
+			    } else if color.streq(&"blue") {
+				//io::reset();
+				io::set_fg(0x68320D);
+				//io::fill_bg();
+			    } else if color.streq(&"green") {
+				//io::reset();
+				io::set_fg(0x00FF00);
+				//io::fill_bg();
+			    } else if color.streq(&"orange") {
+				//io::reset();
+				io::set_fg(0x0370FF);
+				//io::fill_bg();
+			    } else {
+				putstr(&"\nNot a valid color");
+				drawstr(&"\nNot a valid color");
+			    }
+			}
+			None => {
+			    putstr(&"\nNot a valid color");
+			    drawstr(&"\nNot a valid color");
+			}
+		    }
 		} else {
 			putstr(&"\nUnrecognized Command!");
 			drawstr(&"\nUnrecognized Command!");
