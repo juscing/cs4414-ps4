@@ -205,7 +205,7 @@ fn screen() {
 
 pub unsafe fn init() {
 	buffer = cstr::new(256);
-	cwd = fs::directory::new(cstr::from_str("C"), '\0' as *fs::directory);
+	cwd = fs::directory::new(cstr::from_str("/"), '\0' as *fs::directory);
 	screen();
 	prompt(true);
 	let mut x = Vec::new();
@@ -276,60 +276,49 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST ls");
 		    */
 		} else if(y.streq(&"cat")) {
-			putstr(&"\nTEST cat");
-			drawstr(&"\nTEST cat");
+		    match buffer.getarg(' ', 1) {
+			Some(word) => {
+			    if fs::cont_file(cwd, word) {
+				fs::cat(cwd, word);
+			    } else {
+				putstr(&"No such file");
+				drawstr(&"No such file");
+			    }
+			}
+			None => { }
+		    }
+		    //putstr(&"\nTEST cat");
+		    //drawstr(&"\nTEST cat");
 		} else if(y.streq(&"cd")) {
-			/*match buffer.getarg(' ', 1) {
+			match buffer.getarg(' ', 1) {
 				Some(mut word) => {
-					if(word.eq(&cstr::from_str(&".."))) {
-						let padre = cwd.parent as *dnode;
-						cwd = *padre;
-						putstr(&"Current Directory is ");
-						putcstr(cwd.name);
-						drawstr(&"Current Directory is ");
-						drawcstr(cwd.name,true,false);
-					}
-
-
-					let mut i = 0;
-					if cwd.len() == 0 {
-						putstr(&"ZERO");
-					} else if cwd.len() < 0 {
-						putstr(&"Below");
-					} else if cwd.len() > 0 {
-						putstr(&"Above");
-					}
-					let mut found = false;
-					while i < cwd.len() {
-						let dir = cwd.get_dir(i);
-						if dir != '\0' as u32 {
-							let ptr = dir as *dnode;
-							let t = *ptr;
-							if (word.eq(&t.name)) {
-								cwd = *ptr;
-								found = true;
-							}
-						} else {
-							putstr(&"Got something null");
-						}
-						i = i + 1;
-					}
-					if(found) {
-						putstr(&"Current Directory is ");
-						putcstr(cwd.name);
-						drawstr(&"Current Directory is ");
-						drawcstr(cwd.name,true,false);
-					}
-					else {
-
-					}
+			         let check = fs::cd(cwd,word);
+                     match check {
+                        (x,y) => {
+                            if x {
+                                cwd = y;
+                                putstr(&"Current folder");
+                                putcstr(cwd.name);
+                                drawstr(&"Current folder");
+                                drawcstr(cwd.name,true,false);
+                            }
+                            else {
+                                putstr(&"Directory does not exist\n");
+                                drawstr(&"Directory does not exist\n");
+                            } 
+                        }
+                        /*( _, _) => {
+                            putstr(&"Something horrible has occurred\n");
+                            drawstr(&"Something horrible has occurred\n");
+                        }*/
+                     }
 				}
 				None => {
 					putstr(&"Bad Directory Name\n");
 					drawstr(&"Bad Directory Name\n");
 				}
 			}
-            */
+            
 
 
 		} else if(y.streq(&"rm")) {
@@ -416,29 +405,7 @@ unsafe fn parse() {
 			putstr(&"\nUnrecognized Command!");
 			drawstr(&"\nUnrecognized Command!");
 		}
-		/*
-		if(y.streq(&"cat")) {
-		    
-		    match buffer.getarg(' ', 1) {
-			Some(x)        => {
-			    if(x.streq(&"a")) { 
-				putstr( &"\nHowdy!"); 
-				drawstr( &"\nHowdy!"); 
-			    }
-			    if(x.streq(&"b")) {
-				putstr( &"\nworld!");
-				drawstr( &"\nworld!");
-			    }
-			}
-			None        => { }
-		    };
-		}
 		
-		if(y.streq(&"open")) {
-		    putstr(&"\nTEST YO");
-		    drawstr(&"\nTEST YO");
-		}
-		*/
 	}
 	None        => { }
 };
@@ -509,7 +476,7 @@ impl cstr {
 	}
 
 	#[allow(dead_code)]
-	unsafe fn eq(&self, other: &cstr) -> bool {
+	pub unsafe fn eq(&self, other: &cstr) -> bool {
 		if (self.len() != other.len()) { return false; }
 		else {
 			let mut x = 0;
