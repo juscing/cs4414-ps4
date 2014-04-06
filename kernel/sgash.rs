@@ -219,6 +219,29 @@ unsafe fn prompt(startup: bool) {
 	buffer.reset();
 }
 
+unsafe fn cowsay(text: cstr) {
+    putstr(&"\n ___");
+    drawstr(&"\n ___");
+    putstr(&"\n< ");
+    drawstr(&"\n< ");
+    putcstr(text);
+    drawcstr(text, false, false);
+    putstr(&" >");
+    drawstr(&" >");
+    putstr(&"\n ---");
+    drawstr(&"\n ---");
+    putstr(&"\n        \\   ^__^");
+    drawstr(&"\n        \\   ^__^");
+    putstr(&"\n         \\  (oo)\\_______");
+    drawstr(&"\n         \\  (oo)\\_______");
+    putstr(&"\n            (__)\\       )\\/\\");
+    drawstr(&"\n            (__)\\       )\\/\\");
+    putstr(&"\n                ||----w |");
+    drawstr(&"\n                ||----w |");
+    putstr(&"\n                ||     ||");
+    drawstr(&"\n                ||     ||");
+}
+
 unsafe fn parse() {
 	match buffer.getarg(' ', 0) {
 		Some(y)        => {
@@ -401,6 +424,15 @@ unsafe fn parse() {
 
 			// putstr(&"\nTEST wr");
 			// drawstr(&"\nTEST wr");
+		} else if(y.streq(&"cowsay")) {
+		    let (x, cowstr) = buffer.split(' ');
+		    if cowstr.len() > 0 {
+			cowsay(cowstr);
+		    } else {
+			putstr(&"\n Please give the cow something to say!");
+			drawstr(&"\n Please give the cow something to say!");
+		    }
+
 		} else {
 			putstr(&"\nUnrecognized Command!");
 			drawstr(&"\nUnrecognized Command!");
@@ -538,6 +570,9 @@ impl cstr {
 		loop {
 			if (*(selfp as *char) == '\0') { 
 				return (beg, end);
+			}
+			else if (*(selfp as *u8) == delim as u8) && found {
+				end.add_char(*(selfp as *u8));
 			}
 			else if (*(selfp as *u8) == delim as u8) {
 				found = true;
