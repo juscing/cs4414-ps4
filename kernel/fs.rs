@@ -34,7 +34,7 @@ impl directory {
        (*self.dchildren).push(d);
     }
 
-    pub unsafe fn add_file(&mut self, f : file) { 
+    pub unsafe fn add_file(&mut self, f : file) {
        (*self.fchildren).push(f);
     }
 

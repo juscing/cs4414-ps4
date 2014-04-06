@@ -76,7 +76,7 @@ pub unsafe fn init(width: u32, height: u32)
     set_cursor_color(0xDAF2F5);
     fill_bg();
     //PROBLEM 1
-    sgash::drawstr(&"IRONKERNEL by Alex, Justin, Justin, and Vikram");
+    sgash::drawstr(&"IRONKERNEL by Alex, Justin, Justin, and Vikram\nsgash> ");
     draw_cursor();
     
     //This apparently fixes stuff

@@ -207,7 +207,7 @@ pub unsafe fn init() {
 	buffer = cstr::new(256);
 	cwd = fs::directory::new(cstr::from_str("/"), '\0' as *fs::directory);
 	screen();
-	prompt(false);
+	prompt(true);
 }
 
 unsafe fn prompt(startup: bool) {
