@@ -142,11 +142,13 @@ impl file {
 pub unsafe fn listDir(givenDir: directory) {
 
     for fi in iter((*givenDir.fchildren).as_slice()) {
+        putstr(&"\n");
         putcstr(fi.name);
         drawcstr(fi.name, true, false);
     }
 
     for dir in iter((*givenDir.dchildren).as_slice()) {
+        putstr(&"\n");
         putcstr(dir.name);
         drawcstr(dir.name, true, false);
     }
@@ -196,6 +198,7 @@ pub unsafe fn get_file(givenDir: directory, name: cstr) -> Option<&file> {
 pub unsafe fn cat(givenDir: directory, filename: cstr) {
     let file = get_file(givenDir, filename);
     drawcstr(file.get().content, true, false);
+    putstr(&"\n");
     putcstr(file.get().content);
 }
 

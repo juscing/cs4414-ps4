@@ -431,6 +431,7 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
+			putstr(&"\n");
 			putcstr(cwd.name);
 			drawcstr(cwd.name, true, false);
 		} else if(y.streq(&"wr")) {
