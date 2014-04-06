@@ -64,7 +64,7 @@ impl directory {
         
     }
 
-    pub unsafe fn remove(&mut self, filename : cstr) { 
+    pub unsafe fn remove_file(&mut self, filename : cstr) { 
 
         let mut flag = false;
         let mut new_vec = &mut Vec::new() as *mut Vec<file>;
@@ -83,6 +83,31 @@ impl directory {
             self.fchildren = new_vec;
         }        
         
+    }
+    
+    pub unsafe fn remove_dir(&mut self, dirname: cstr) -> bool {
+	let mut flag = false;
+	let mut new_vec = &mut Vec::new() as *mut Vec<directory>;
+	
+	for &mut dir in iter((*self.dchildren).as_slice()) {
+	    /*
+	    let mut x = dir.dchildren as u32;
+	    let mut y = x as *mut Vec<directory>;
+	    let mut z = *y;
+	    if z.len() == 0 {
+	    */
+		if dir.name.eq(&dirname) {
+		    flag = true;
+		    continue;
+		}
+	    //}
+	    (*new_vec).push(dir);
+	}
+	if flag
+        {
+            self.dchildren = new_vec;
+        }
+        return flag;
     }
 }
 
@@ -134,6 +159,15 @@ pub unsafe fn listDir(givenDir: directory) {
 pub unsafe fn cont_file(givenDir: directory, name: cstr) -> bool {
     for fi in iter((*givenDir.fchildren).as_slice()) {
         if fi.name.eq(&name) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+pub unsafe fn cont_dir(givenDir: directory, name: cstr) -> bool {
+    for di in iter((*givenDir.dchildren).as_slice()) {
+        if di.name.eq(&name) {
 	    return true;
 	}
     }

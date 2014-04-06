@@ -40,7 +40,7 @@ impl<T> Vec<T> {
     pub fn new() -> Vec<T> {
         Vec { len: 0, cap: 0, ptr: 0 as *mut T }
     }
-
+    
     pub fn with_capacity(capacity: uint) -> Vec<T> {
         if capacity == 0 {
             Vec::new()
@@ -57,6 +57,11 @@ impl<T> Vec<T> {
     #[inline(always)]
     pub fn capacity(&self) -> uint {
         self.cap
+    }
+    
+    #[inline(always)]
+    pub fn len(&self) -> uint {
+	self.len
     }
 
     pub fn reserve(&mut self, capacity: uint) {

@@ -327,10 +327,19 @@ unsafe fn parse() {
 
 					if fs::cont_file(cwd, filename)
 					{
-						cwd.remove(filename);
+					    cwd.remove_file(filename);
 					}
-					else
-					{
+					else if fs::cont_dir(cwd, filename) {
+					    if cwd.remove_dir(filename) {
+						putstr(&"\nRemoved ");
+						drawstr(&"\nRemoved ");
+						putcstr(filename);
+						drawcstr(filename, false, false);
+					    } else {
+						putstr(&"\nThe folder is not empty.");
+						drawstr(&"\nThe folder is not empty.");
+					    }
+					} else {
 						putstr(&"\nFile not found.");
 						drawstr(&"\nFile not found.");
 					}
