@@ -76,7 +76,7 @@ pub unsafe fn init(width: u32, height: u32)
     set_cursor_color(0xDAF2F5);
     fill_bg();
     //PROBLEM 1
-    sgash::drawstr(&"sgash> ");
+    sgash::drawstr(&"IRONKERNEL by Alex, Justin, Justin, and Vikram");
     draw_cursor();
     
     //This apparently fixes stuff
@@ -89,27 +89,38 @@ pub unsafe fn write_char(c: char, address: *mut u32) {
 
 pub unsafe fn scrollup()
 {
-    let mut i = CURSOR_HEIGHT*SCREEN_WIDTH;
+    // i is the size of a row
+    let mut i = 2*CURSOR_HEIGHT*SCREEN_WIDTH;
+    //while i is < than the area of the screen...
+    
+    
     while i < (SCREEN_WIDTH*SCREEN_HEIGHT)
     {
+	// Get the start address + (i - (CURSOR_HEIGHT * SCREEN_WIDTH)) * 4
 	*((START_ADDR + ((i-16*SCREEN_WIDTH)*4)) as *mut u32) = *((START_ADDR+(i*4)) as *u32); 
 	i += 1;
     }
+    
+    
+    // This just clears the last row... does not break anything...
     i = 4*(SCREEN_WIDTH*SCREEN_HEIGHT - CURSOR_HEIGHT*SCREEN_WIDTH);
     while i < 4*SCREEN_WIDTH*SCREEN_HEIGHT
     {
 	*((START_ADDR + (i as u32)) as *mut u32) = BG_COLOR;
 	i += 4;
     }
+    
     CURSOR_X = 0x0u32;
     CURSOR_Y -= CURSOR_HEIGHT;
 }
 pub unsafe fn draw_char(c: char)
 {
+    
     if CURSOR_X+(SCREEN_WIDTH*CURSOR_Y) >= SCREEN_WIDTH*SCREEN_HEIGHT
     {
 	scrollup();
     }
+    
     let font_offset = (c as u8) - 0x20;
     let map = font::bitmaps[font_offset];
 
