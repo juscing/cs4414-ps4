@@ -5,6 +5,7 @@ use core::str::*;
 use core::option::{Some, Option, None}; // Match statement
 use core::iter::Iterator;
 use kernel::*;
+use core::slice::{Items, Slice, iter, unchecked_get, unchecked_mut_get};
 use super::super::platform::*;
 use kernel::memory::Allocator;
 use kernel::vec::Vec;
@@ -45,7 +46,7 @@ pub fn putchar(key: char) {
 	}
 }
 
-fn putstr(msg: &str) {
+pub fn putstr(msg: &str) {
 	for c in slice::iter(as_bytes(msg)) {
 		putchar(*c as char);
 	}
@@ -360,11 +361,57 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
-			/*putcstr(cwd.name);
-			drawcstr(cwd.name, true, false);*/
+			putcstr(cwd.name);
+			drawcstr(cwd.name, true, false);
 		} else if(y.streq(&"wr")) {
-			putstr(&"\nTEST wr");
-			drawstr(&"\nTEST wr");
+
+			match buffer.getarg(' ', 1) {
+				Some(mut filename) => {
+
+					if filename.len() < 1 {
+						putstr(&"Bad File Name\n");
+						drawstr(&"Bad File Name\n");
+						return;
+					}
+
+					match buffer.getarg(' ', 2) {
+						Some(mut file_content) => {
+
+							if file_content.len() < 1 {
+								putstr(&"Content can't be empty\n");
+								drawstr(&"Content can't be empty\n");
+								return;
+							}
+
+							
+
+							let f = fs::file::new(filename, &cwd, file_content);
+							cwd.add_file(f);
+
+							putcstr(f.name);
+							drawcstr(f.name, true, false);
+
+							putcstr(f.content);
+							drawcstr(f.content, true, false);
+
+						}
+						None => {
+							putstr(&"Content can't be empty\n");
+							drawstr(&"Content can't be empty\n");
+							return;
+						}					
+
+					}
+				}
+
+				None => {
+					putstr(&"Bad File Name\n");
+						drawstr(&"Bad File Name\n");
+				}
+			}
+
+			// putstr(&"\nTEST wr");
+			// drawstr(&"\nTEST wr");
 		} else {
 			putstr(&"\nUnrecognized Command!");
 			drawstr(&"\nUnrecognized Command!");
