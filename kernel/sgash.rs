@@ -23,17 +23,19 @@ static ds: cstr = cstr {
 	max: 0
 };
 
-pub static mut cwd: fs::directory = fs::directory {
+pub static mut root: fs::directory = fs::directory {
     name: cstr {
         p: 0 as *mut u8,
         p_cstr_i: 0,
         max: 0 
     },
-    parent: '\0' as *fs::directory,
+    parent: '\0' as *mut fs::directory,
     fchildren: '\0' as *mut vec::Vec<fs::file>,
     dchildren: '\0' as *mut vec::Vec<fs::directory>,
 
 };
+
+pub static mut cwd: *mut fs::directory = 0 as *mut fs::directory;
 
 pub fn putchar(key: char) {
 	unsafe {
@@ -205,7 +207,8 @@ fn screen() {
 
 pub unsafe fn init() {
 	buffer = cstr::new(256);
-	cwd = fs::directory::new(cstr::from_str("/"), '\0' as *fs::directory);
+	root = fs::directory::new(cstr::from_str("/"), '\0' as *mut fs::directory);
+	cwd = &mut root as *mut fs::directory;
 	screen();
 	prompt(true);
 }
@@ -268,12 +271,12 @@ unsafe fn parse() {
 				}
 			}
 		} else if(y.streq(&"ls")) {
-		    fs::listDir(cwd);
+			(*cwd).listDir();
 		} else if(y.streq(&"cat")) {
 		    match buffer.getarg(' ', 1) {
 			Some(word) => {
-			    if fs::cont_file(cwd, word) {
-				fs::cat(cwd, word);
+			    if (*cwd).cont_file(word) {
+				(*cwd).cat(word);
 			    } else {
 				putstr(&"No such file");
 				drawstr(&"No such file");
@@ -286,13 +289,13 @@ unsafe fn parse() {
 				Some(mut word) => {
 			         let check = fs::cd(cwd,word);
                      match check {
-                        (x,y) => {
+                        (mut x,mut y) => {
                             if x {
-                                cwd = y;
+                                cwd = &y;
                                 putstr(&"Current folder");
-                                putcstr(cwd.name);
+                                putcstr((*cwd).name);
                                 drawstr(&"Current folder");
-                                drawcstr(cwd.name,true,false);
+                                drawcstr((*cwd).name,true,false);
                             }
                             else {
                                 putstr(&"Directory does not exist\n");
@@ -325,12 +328,12 @@ unsafe fn parse() {
 					// let dir = dnode::new(256, word, cwdptr as u32);
 					// let x = cwd.add_child((&dir as *dnode) as u32);
 
-					if fs::cont_file(cwd, filename)
+					if (*cwd).cont_file(filename)
 					{
-					    cwd.remove_file(filename);
+					    (*cwd).remove_file(filename);
 					}
-					else if fs::cont_dir(cwd, filename) {
-					    if cwd.remove_dir(filename) {
+					else if (*cwd).cont_dir(filename) {
+					    if (*cwd).remove_dir(filename) {
 						putstr(&"\nRemoved ");
 						drawstr(&"\nRemoved ");
 						putcstr(filename);
@@ -362,7 +365,7 @@ unsafe fn parse() {
 					// let dir = dnode::new(256, word, cwdptr as u32);
 					// let x = cwd.add_child((&dir as *dnode) as u32);
 
-					if fs::cont_file(cwd, filename)
+					if (*cwd).cont_file(filename)
 					{
 						match buffer.getarg(' ', 2)
 						{
@@ -375,12 +378,12 @@ unsafe fn parse() {
 									return;
 								}
 
-								if fs::cont_file(cwd, filename)
+								if (*cwd).cont_file(filename)
 								{
-									let content = fs::get_file(cwd, filename).get().content;
-									let f = fs::file::new(destination, &cwd, content);
-									cwd.add_file(f);
-									cwd.remove_file(filename);
+									let content = (*cwd).get_file(filename).get().content;
+									let f = fs::file::new(destination, cwd, content);
+									(*cwd).add_file(f);
+									(*cwd).remove_file(filename);
 									
 								}
 
@@ -417,8 +420,8 @@ unsafe fn parse() {
 					// let dir = dnode::new(256, word, cwdptr as u32);
 					// let x = cwd.add_child((&dir as *dnode) as u32);
 
-					let d = fs::directory::new(word, &cwd);
-					cwd.add_directory(d);
+					let d = fs::directory::new(word, cwd);
+					(*cwd).add_directory(d);
 
 				}
 				None => {
@@ -431,9 +434,8 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
-			putstr(&"\n");
-			putcstr(cwd.name);
-			drawcstr(cwd.name, true, false);
+			putcstr((*cwd).name);
+			drawcstr((*cwd).name, true, false);
 		} else if(y.streq(&"wr")) {
 
 			match buffer.getarg(' ', 1) {
@@ -454,8 +456,8 @@ unsafe fn parse() {
 
 							
 
-							let f = fs::file::new(filename, &cwd, file_content);
-							cwd.add_file(f);
+							let f = fs::file::new(filename, cwd, file_content);
+							(*cwd).add_file(f);
 
 				
 
