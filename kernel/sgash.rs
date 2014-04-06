@@ -204,7 +204,7 @@ fn screen() {
 
 pub unsafe fn init() {
 	buffer = cstr::new(256);
-	cwd = fs::directory::new(cstr::from_str("C"), '\0' as *fs::directory);
+	cwd = fs::directory::new(cstr::from_str("/"), '\0' as *fs::directory);
 	screen();
 	prompt(true);
 	let mut x = Vec::new();
@@ -338,8 +338,8 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST mkdir");
 		    */
 		} else if(y.streq(&"pwd")) {
-			/*putcstr(cwd.name);
-			drawcstr(cwd.name, true, false);*/
+			putcstr(cwd.name);
+			drawcstr(cwd.name, true, false);
 		} else if(y.streq(&"wr")) {
 			putstr(&"\nTEST wr");
 			drawstr(&"\nTEST wr");
