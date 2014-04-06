@@ -74,6 +74,30 @@ pub unsafe fn listDir(givenDir: directory) {
     // }
 }
 
+pub unsafe fn cont_file(givenDir: directory, name: cstr) -> bool {
+    for fi in iter((*givenDir.fchildren).as_slice()) {
+        if fi.name.eq(&name) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+pub unsafe fn get_file(givenDir: directory, name: cstr) -> Option<&file> {
+    for fi in iter((*givenDir.fchildren).as_slice()) {
+        if fi.name.eq(&name) {
+	    return Some(fi);
+	}
+    }
+    return None;
+}
+
+pub unsafe fn cat(givenDir: directory, filename: cstr) {
+    let file = get_file(givenDir, filename);
+    drawcstr(file.get().content, true, false);
+    putcstr(file.get().content);
+}
+
 /*
 pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
 {

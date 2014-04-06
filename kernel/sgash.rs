@@ -275,8 +275,19 @@ unsafe fn parse() {
 		    drawstr(&"\nTEST ls");
 		    */
 		} else if(y.streq(&"cat")) {
-			putstr(&"\nTEST cat");
-			drawstr(&"\nTEST cat");
+		    match buffer.getarg(' ', 1) {
+			Some(word) => {
+			    if fs::cont_file(cwd, word) {
+				fs::cat(cwd, word);
+			    } else {
+				putstr(&"No such file");
+				drawstr(&"No such file");
+			    }
+			}
+			None => { }
+		    }
+		    //putstr(&"\nTEST cat");
+		    //drawstr(&"\nTEST cat");
 		} else if(y.streq(&"cd")) {
 			/*match buffer.getarg(' ', 1) {
 				Some(mut word) => {
@@ -369,29 +380,7 @@ unsafe fn parse() {
 			putstr(&"\nUnrecognized Command!");
 			drawstr(&"\nUnrecognized Command!");
 		}
-		/*
-		if(y.streq(&"cat")) {
-		    
-		    match buffer.getarg(' ', 1) {
-			Some(x)        => {
-			    if(x.streq(&"a")) { 
-				putstr( &"\nHowdy!"); 
-				drawstr( &"\nHowdy!"); 
-			    }
-			    if(x.streq(&"b")) {
-				putstr( &"\nworld!");
-				drawstr( &"\nworld!");
-			    }
-			}
-			None        => { }
-		    };
-		}
 		
-		if(y.streq(&"open")) {
-		    putstr(&"\nTEST YO");
-		    drawstr(&"\nTEST YO");
-		}
-		*/
 	}
 	None        => { }
 };
@@ -462,7 +451,7 @@ impl cstr {
 	}
 
 	#[allow(dead_code)]
-	unsafe fn eq(&self, other: &cstr) -> bool {
+	pub unsafe fn eq(&self, other: &cstr) -> bool {
 		if (self.len() != other.len()) { return false; }
 		else {
 			let mut x = 0;
