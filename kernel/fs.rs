@@ -98,6 +98,15 @@ pub unsafe fn cat(givenDir: directory, filename: cstr) {
     putcstr(file.get().content);
 }
 
+pub unsafe fn cd(givenDir: directory, goal: cstr) -> (bool,directory) {
+    for dir in iter((*givenDir.dchildren).as_slice()) {
+        if dir.name.eq(&goal) {
+            return (true,*dir)
+        }
+    }
+    return (false,givenDir)
+}
+
 /*
 pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
 {
@@ -119,37 +128,5 @@ pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
 	}
     }
     return cstr::new();
-}
-
-pub fn append(node: *tree_node, file: cstr, content: cstr) -> bool
-{
-    let (mut f, _, _) = open(node, file);
-    if f == cstr::new()
-    {
-	return false;
-    }
-    let mut x = 0;
-    let mut f_contents = (*f).contents;
-    while x < content.len()
-    {
-	let b = f_contents.push_char(content.char_at(x));
-	if !b
-	{
-	    return false;
-	}
-    }
-    let (*f).contents = f_contents;
-    return true;
-}
-
-pub fn new(node: *tree_node, dir: cstr, name: cstr) -> bool
-{
-    let (mut n, _, _) = open(node, file);
-    if !n.isLeaf()
-    {
-	n.insert(name);
-    }
-    return false;
-
 }
 */
