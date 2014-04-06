@@ -289,8 +289,9 @@ unsafe fn parse() {
 				Some(mut word) => {
 			         let check = fs::cd(cwd,word);
                      match check {
-                        (x, y) => {
+                        (mut x, mut y) => {
                             if x {
+				putstr(&"Current folder");
                                 cwd = y;
                                 putstr(&"Current folder");
                                 putcstr((*cwd).name);
