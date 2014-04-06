@@ -29,8 +29,8 @@ pub static mut cwd: fs::directory = fs::directory{
         max: 0 
     },
     parent: '\0' as *fs::directory,
-    fchildren: Vec { len: 0, cap: 0, ptr: 0 as *mut fs::file },
-    dchildren: Vec { len: 0, cap: 0, ptr: 0 as *mut fs::directory },
+    fchildren: '\0' as *vec::Vec<*fs::file>,
+    dchildren: '\0' as *vec::Vec<*fs::directory>,
 
 };
 

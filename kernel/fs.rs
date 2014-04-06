@@ -12,16 +12,16 @@ use kernel::sgash::cstr;
 pub struct directory {
     name: cstr,
     parent: *directory,
-    fchildren: Vec<*file>,
-    dchildren: Vec<*directory>,
+    fchildren: *Vec<*file>,
+    dchildren: *Vec<*directory>,
 }
 
 impl directory {
     pub unsafe fn new(title: cstr, parent: *directory) -> directory {
         let this = directory {
             name: title,
-            fchildren: Vec::new(),
-            dchildren: Vec::new(),
+            fchildren: &Vec::new(),
+            dchildren: &Vec::new(),
             parent: parent,
         };
         this
