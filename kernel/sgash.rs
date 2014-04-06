@@ -29,8 +29,8 @@ pub static mut cwd: fs::directory = fs::directory {
         max: 0 
     },
     parent: '\0' as *fs::directory,
-    fchildren: '\0' as *vec::Vec<fs::file>,
-    dchildren: '\0' as *vec::Vec<fs::directory>,
+    fchildren: '\0' as *mut vec::Vec<fs::file>,
+    dchildren: '\0' as *mut vec::Vec<fs::directory>,
 
 };
 
@@ -313,29 +313,26 @@ unsafe fn parse() {
 			putstr(&"\nTEST rm");
 			drawstr(&"\nTEST rm");
 		} else if(y.streq(&"mkdir")) {
-			/*match buffer.getarg(' ', 1) {
+			match buffer.getarg(' ', 1) {
 				Some(mut word) => {
 					if word.len() < 1 {
 						putstr(&"Bad Directory Name\n");
 						drawstr(&"Bad Directory Name\n");
 						return;
 					}
-					let cwdptr = &cwd as *dnode;
-					let dir = dnode::new(256, word, cwdptr as u32);
-					let x = cwd.add_child((&dir as *dnode) as u32);
+					// let cwdptr = &cwd as *dnode;
+					// let dir = dnode::new(256, word, cwdptr as u32);
+					// let x = cwd.add_child((&dir as *dnode) as u32);
 
-					if x {
-						putstr(&"SUCCESS");
-					} else {
-						putstr(&"Fail");
-					}
+					let d = fs::directory::new(word, &cwd);
+					cwd.add_directory(d);
 
 				}
 				None => {
 					putstr(&"Bad Directory Name\n");
 					drawstr(&"Bad Directory Name\n");
 				}
-			}*/
+			}
 		    /*
 		    putstr(&"\nTEST mkdir");
 		    drawstr(&"\nTEST mkdir");
@@ -400,7 +397,7 @@ impl cstr {
 	}
 
 	#[allow(dead_code)]
-	unsafe fn from_str(s: &str) -> cstr {
+	pub unsafe fn from_str(s: &str) -> cstr {
 		let mut this = cstr::new(256);
 		for c in slice::iter(as_bytes(s)) {
 			this.add_char(*c);

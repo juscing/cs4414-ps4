@@ -13,19 +13,23 @@ use kernel::sgash::putcstr;
 pub struct directory {
     name: cstr,
     parent: *directory,
-    fchildren: *Vec<file>,
-    dchildren: *Vec<directory>,
+    fchildren: *mut Vec<file>,
+    dchildren: *mut Vec<directory>,
 }
 
 impl directory {
     pub unsafe fn new(title: cstr, parent: *directory) -> directory {
         let this = directory {
             name: title,
-            fchildren: &Vec::new() as *Vec<file>,
-            dchildren: &Vec::new() as *Vec<directory>,
+            fchildren: &mut Vec::new() as *mut Vec<file>,
+            dchildren: &mut Vec::new() as *mut Vec<directory>,
             parent: parent,
         };
         this
+    }
+
+    pub unsafe fn add_directory(&mut self, d : directory) { 
+       (*self.dchildren).push(d);
     }
 }
 
@@ -48,7 +52,6 @@ impl file {
 
 
 pub unsafe fn listDir(givenDir: directory) {
-
 
     for dir in iter((*givenDir.dchildren).as_slice()) {
         putcstr(dir.name);
