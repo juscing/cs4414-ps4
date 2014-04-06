@@ -370,6 +370,52 @@ unsafe fn parse() {
 					drawstr(&"Bad Directory Name\n");
 				}
 			}
+		} else if(y.streq(&"mv")) {
+			match buffer.getarg(' ', 1) {
+				Some(mut filename) => {
+					if filename.len() < 1 {
+						putstr(&"Bad File Name\n");
+						drawstr(&"Bad File Name\n");
+						return;
+					}
+					// let cwdptr = &cwd as *dnode;
+					// let dir = dnode::new(256, word, cwdptr as u32);
+					// let x = cwd.add_child((&dir as *dnode) as u32);
+
+					if fs::cont_file(cwd, filename)
+					{
+						match buffer.getarg(' ', 2)
+						{
+							Some(mut destination) => 
+							{
+								if destination.len() < 1
+								{
+									putstr(&"\nDestination cannot be blank.");
+									drawstr(&"\nDestination cannot be blank.");
+									return;
+								}
+
+								cwd.move(filename, destination);
+							}
+							None => 
+							{
+								putstr(&"\nDestination cannot be blank.");
+								drawstr(&"\nDestination cannot be blank.");
+							}
+						}
+					}
+					else
+					{
+						putstr(&"\nFile not found.");
+						drawstr(&"\nFile not found.");
+					}
+
+				}
+				None => {
+					putstr(&"Bad Directory Name\n");
+					drawstr(&"Bad Directory Name\n");
+				}
+			}
 		} else if(y.streq(&"mkdir")) {
 			match buffer.getarg(' ', 1) {
 				Some(mut word) => {

@@ -38,6 +38,32 @@ impl directory {
        (*self.fchildren).push(f);
     }
 
+    pub unsafe fn move(mut self, filename : cstr, destination : cstr) { 
+
+        let mut flag = false;
+        let mut new_vec = &mut Vec::new() as *mut Vec<file>;
+
+        for fi in iter((*self.fchildren).as_slice()) {
+            if fi.name.eq(&filename) {
+                flag = true;
+
+                let f = file::new(destination, &self, fi.content);
+
+                (*new_vec).push(f);
+                continue;
+            }
+            (*new_vec).push(*fi);
+            
+        }
+
+        if flag
+        {
+            putstr(&"\nMove");
+            self.fchildren = new_vec;
+        }        
+        
+    }
+
     pub unsafe fn remove(&mut self, filename : cstr) { 
 
         let mut flag = false;
@@ -80,12 +106,9 @@ impl file {
 
 pub unsafe fn listDir(givenDir: directory) {
 
-    let mut count = 0;
-
     for fi in iter((*givenDir.fchildren).as_slice()) {
         putcstr(fi.name);
         drawcstr(fi.name, true, false);
-        count += 1;
     }
 
     for dir in iter((*givenDir.dchildren).as_slice()) {
@@ -93,13 +116,6 @@ pub unsafe fn listDir(givenDir: directory) {
         drawcstr(dir.name, true, false);
     }
 
-    
-
-    if count > 0
-    {
-        putstr(&"works");
-        drawstr(&"works");
-    }
 
 
 
