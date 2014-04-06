@@ -80,6 +80,7 @@ impl directory {
         if flag
         {
             (*self.fchildren).truncate(0);
+            (*self.fchildren).shrink_to_fit();
             for fi in iter((*new_vec).as_slice()) {
                (*self.fchildren).push(*fi);
             }
@@ -109,6 +110,7 @@ impl directory {
     	if flag
         {
             (*self.dchildren).truncate(0);
+            (*self.dchildren).shrink_to_fit();
             for dir in iter((*new_vec).as_slice()) {
                (*self.dchildren).push(*dir);
             }
