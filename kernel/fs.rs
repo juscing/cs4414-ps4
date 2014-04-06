@@ -9,6 +9,8 @@ use super::super::platform::*;
 use kernel::sgash::cstr;
 use kernel::sgash::drawcstr;
 use kernel::sgash::putcstr;
+use kernel::sgash::putstr;
+use kernel::sgash::drawstr;
 
 pub struct directory {
     name: cstr,
@@ -30,6 +32,10 @@ impl directory {
 
     pub unsafe fn add_directory(&mut self, d : directory) { 
        (*self.dchildren).push(d);
+    }
+
+    pub unsafe fn add_file(&mut self, f : file) { 
+       (*self.fchildren).push(f);
     }
 }
 
@@ -53,14 +59,28 @@ impl file {
 
 pub unsafe fn listDir(givenDir: directory) {
 
+    let mut count = 0;
+
+    for fi in iter((*givenDir.fchildren).as_slice()) {
+        putcstr(fi.name);
+        drawcstr(fi.name, true, false);
+        count += 1;
+    }
+
     for dir in iter((*givenDir.dchildren).as_slice()) {
         putcstr(dir.name);
         drawcstr(dir.name, true, false);
     }
-    for fi in iter((*givenDir.fchildren).as_slice()) {
-        putcstr(fi.name);
-        drawcstr(fi.name, true, false);
+
+    
+
+    if count > 0
+    {
+        putstr(&"works");
+        drawstr(&"works");
     }
+
+
 
 
 
