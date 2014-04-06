@@ -46,6 +46,19 @@ impl file {
 }
 
 
+pub fn listDir(givenDir: directory) -> Vec<cstr> {
+    let ret = Vec::new();
+    let it = givenDir.dchildren.Iterator;
+    for dir in *(givenDir.dchildren) {
+        let name = dir.name;
+        ret.push(name);
+    }
+    for fi in *(givenDir.fchildren) {
+        let name = fi.name;
+        ret.push(name);
+    }
+}
+
 /*
 pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
 {
