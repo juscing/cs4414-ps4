@@ -1,27 +1,28 @@
-/* kernel::fs.rs */
-
 use core::*;
 use kernel::*;
 use core::str::*;
 use core::option::{Some, Option, None}; // Match statement
 use core::iter::Iterator;
+use core::slice::{Items, Slice, iter, unchecked_get, unchecked_mut_get};
 use kernel::vec::Vec;
 use super::super::platform::*;
 use kernel::sgash::cstr;
+use kernel::sgash::drawcstr;
+use kernel::sgash::putcstr;
 
 pub struct directory {
     name: cstr,
     parent: *directory,
-    fchildren: *Vec<*file>,
-    dchildren: *Vec<*directory>,
+    fchildren: *Vec<file>,
+    dchildren: *Vec<directory>,
 }
 
 impl directory {
     pub unsafe fn new(title: cstr, parent: *directory) -> directory {
         let this = directory {
             name: title,
-            fchildren: &Vec::new(),
-            dchildren: &Vec::new(),
+            fchildren: &Vec::new() as *Vec<file>,
+            dchildren: &Vec::new() as *Vec<directory>,
             parent: parent,
         };
         this
@@ -46,17 +47,28 @@ impl file {
 }
 
 
-pub fn listDir(givenDir: directory) -> Vec<cstr> {
-    let ret = Vec::new();
-    let it = givenDir.dchildren.Iterator;
-    for dir in *(givenDir.dchildren) {
-        let name = dir.name;
-        ret.push(name);
+pub unsafe fn listDir(givenDir: directory) {
+
+
+    for dir in iter((*givenDir.dchildren).as_slice()) {
+        putcstr(dir.name);
+        drawcstr(dir.name, true, false);
     }
-    for fi in *(givenDir.fchildren) {
-        let name = fi.name;
-        ret.push(name);
+    for fi in iter((*givenDir.fchildren).as_slice()) {
+        putcstr(fi.name);
+        drawcstr(fi.name, true, false);
     }
+
+
+
+    // for dir in *(givenDir.dchildren) {
+    //     let name = dir.name;
+    //     ret.push(name);
+    // }
+    // for fi in *(givenDir.fchildren) {
+    //     let name = fi.name;
+    //     ret.push(name);
+    // }
 }
 
 /*

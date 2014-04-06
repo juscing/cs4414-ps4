@@ -30,9 +30,9 @@ mod macros;
 
 
 pub struct Vec<T> {
-    len: uint,
-    cap: uint,
-    ptr: *mut T
+    priv len: uint,
+    priv cap: uint,
+    priv ptr: *mut T
 }
 
 impl<T> Vec<T> {

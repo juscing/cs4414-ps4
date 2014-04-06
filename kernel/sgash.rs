@@ -22,15 +22,15 @@ static ds: cstr = cstr {
 	max: 0
 };
 
-pub static mut cwd: fs::directory = fs::directory{
+pub static mut cwd: fs::directory = fs::directory {
     name: cstr {
         p: 0 as *mut u8,
         p_cstr_i: 0,
         max: 0 
     },
     parent: '\0' as *fs::directory,
-    fchildren: '\0' as *vec::Vec<*fs::file>,
-    dchildren: '\0' as *vec::Vec<*fs::directory>,
+    fchildren: '\0' as *vec::Vec<fs::file>,
+    dchildren: '\0' as *vec::Vec<fs::directory>,
 
 };
 
@@ -246,7 +246,10 @@ unsafe fn parse() {
 				}
 			}
 		} else if(y.streq(&"ls")) {
-			let mut i = 0;
+
+			fs::listDir(cwd);
+
+			// let mut i = 0;
 			/*if cwd.len() == 0 {
 				putstr(&"ZERO");
 			} else if cwd.len() < 0 {
