@@ -247,3 +247,7 @@ pub unsafe fn set_cursor_color(color: u32)
 {
     CURSOR_COLOR = color;
 }
+pub unsafe fn reset() {
+    CURSOR_X = 0;
+    CURSOR_Y = -CURSOR_HEIGHT;
+}
