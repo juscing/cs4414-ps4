@@ -268,34 +268,7 @@ unsafe fn parse() {
 				}
 			}
 		} else if(y.streq(&"ls")) {
-
-			fs::listDir(cwd);
-
-			// let mut i = 0;
-			/*if cwd.len() == 0 {
-				putstr(&"ZERO");
-			} else if cwd.len() < 0 {
-				putstr(&"Below");
-			} else if cwd.len() > 0 {
-				putstr(&"Above");
-			}
-			while i < cwd.len() {
-				putstr(&"IS THIS WORKING");
-				let dir = cwd.get_dir(i);
-				if dir != '\0' as u32 {
-					let ptr = dir as *dnode;
-					let t = *ptr;
-					putcstr(t.name);
-					drawcstr(t.name, true, false);
-				} else {
-					putstr(&"Got something null");
-				}
-				i = i + 1;
-			}*/
-		    /*
-		    putstr(&"\nTEST ls");
-		    drawstr(&"\nTEST ls");
-		    */
+		    fs::listDir(cwd);
 		} else if(y.streq(&"cat")) {
 		    match buffer.getarg(' ', 1) {
 			Some(word) => {
@@ -308,8 +281,6 @@ unsafe fn parse() {
 			}
 			None => { }
 		    }
-		    //putstr(&"\nTEST cat");
-		    //drawstr(&"\nTEST cat");
 		} else if(y.streq(&"cd")) {
 			match buffer.getarg(' ', 1) {
 				Some(mut word) => {
@@ -454,10 +425,8 @@ unsafe fn parse() {
 						drawstr(&"Bad File Name\n");
 						return;
 					}
-
-					match buffer.getarg(' ', 2) {
-						Some(mut file_content) => {
-
+					let (mut command, mut end) = buffer.split(' ');
+					let (mut filename, mut file_content) = end.split(' ');
 							if file_content.len() < 1 {
 								putstr(&"Content can't be empty\n");
 								drawstr(&"Content can't be empty\n");
@@ -469,20 +438,9 @@ unsafe fn parse() {
 							let f = fs::file::new(filename, &cwd, file_content);
 							cwd.add_file(f);
 
-							// putcstr(f.name);
-							// drawcstr(f.name, true, false);
+				
 
-							// putcstr(f.content);
-							// drawcstr(f.content, true, false);
-
-						}
-						None => {
-							putstr(&"Content can't be empty\n");
-							drawstr(&"Content can't be empty\n");
-							return;
-						}					
-
-					}
+					
 				}
 
 				None => {
@@ -535,21 +493,11 @@ unsafe fn parse() {
 		    match buffer.getarg(' ', 1) {
 			Some(color) => {
 			    if color.streq(&"red") {
-				//io::reset();
 				io::set_fg(0x0000FF);
-				//io::fill_bg();
-			    } else if color.streq(&"blue") {
-				//io::reset();
-				io::set_fg(0x68320D);
-				//io::fill_bg();
 			    } else if color.streq(&"green") {
-				//io::reset();
 				io::set_fg(0x00FF00);
-				//io::fill_bg();
 			    } else if color.streq(&"orange") {
-				//io::reset();
 				io::set_fg(0x0370FF);
-				//io::fill_bg();
 			    } else {
 				putstr(&"\nNot a valid color");
 				drawstr(&"\nNot a valid color");
