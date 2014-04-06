@@ -163,18 +163,22 @@ impl file {
 
 
 
-pub unsafe fn cd(givenDir: &mut directory, goal: cstr) -> (bool, *mut directory) {
+pub unsafe fn cd(givenDir: *mut directory, goal: cstr) -> (bool, *mut directory) {
     if goal.eq(&cstr::from_str(&"..")) {
-        return (true,givenDir.parent)
+        let s = (*givenDir).parent;
+        return (true, s);
     }
 
-    for dir in iter((*givenDir.dchildren).as_slice()) {
+    let mut d : fs::directory;
+
+    for &mut dir in iter((*(*givenDir).dchildren).as_slice()) {
         if dir.name.eq(&goal) {
-            let mut s = dir as *mut directory;
-            return (true, s)
+            return(true, &mut dir as *mut directory);            
         }
     }
-    return (false,*givenDir)
+
+
+    return (false, givenDir);
 }
 
 /*
