@@ -14,13 +14,13 @@ use kernel::sgash::drawstr;
 
 pub struct directory {
     name: cstr,
-    parent: *directory,
+    parent: *mut directory,
     fchildren: *mut Vec<file>,
     dchildren: *mut Vec<directory>,
 }
 
 impl directory {
-    pub unsafe fn new(title: cstr, parent: *directory) -> directory {
+    pub unsafe fn new(title: cstr, parent: *mut directory) -> directory {
         let mut this = directory {
             name: title,
             fchildren: &mut Vec::new() as *mut Vec<file>,
@@ -38,31 +38,6 @@ impl directory {
        (*self.fchildren).push(f);
     }
 
-    // pub unsafe fn move(mut self, filename : cstr, destination : cstr) { 
-
-    //     let mut flag = false;
-    //     let mut new_vec = &mut Vec::new() as *mut Vec<file>;
-
-    //     for fi in iter((*self.fchildren).as_slice()) {
-    //         if fi.name.eq(&filename) {
-    //             flag = true;
-
-    //             let f = file::new(destination, &self, fi.content);
-
-    //             (*new_vec).push(f);
-    //             continue;
-    //         }
-    //         (*new_vec).push(*fi);
-            
-    //     }
-
-    //     if flag
-    //     {
-    //         putstr(&"\nMove");
-    //         self.fchildren = new_vec;
-    //     }        
-        
-    // }
 
     pub unsafe fn remove_file(&mut self, filename : cstr) { 
 
@@ -118,17 +93,63 @@ impl directory {
 
         return flag;
     }
+
+    pub unsafe fn listDir(&mut self) {
+
+        for fi in iter((*self.fchildren).as_slice()) {
+            putcstr(fi.name);
+            drawcstr(fi.name, true, false);
+        }
+
+        for dir in iter((*self.dchildren).as_slice()) {
+            putcstr(dir.name);
+            drawcstr(dir.name, true, false);
+        }
+    }
+    pub unsafe fn cont_file(&mut self, name: cstr) -> bool {
+        for fi in iter((*self.fchildren).as_slice()) {
+            if fi.name.eq(&name) {
+            return true;
+        }
+        }
+        return false;
+    }
+
+    pub unsafe fn cat(&mut self, filename: cstr) {
+        let file = self.get_file(filename);
+        drawcstr(file.get().content, true, false);
+        putcstr(file.get().content);
+    }
+
+    pub unsafe fn get_file(&mut self, name: cstr) -> Option<&file> {
+        for fi in iter((*self.fchildren).as_slice()) {
+            if fi.name.eq(&name) {
+            return Some(fi);
+        }
+        }
+        return None;
+    }
+
+    pub unsafe fn cont_dir(&mut self, name: cstr) -> bool {
+        for di in iter((*self.dchildren).as_slice()) {
+            if di.name.eq(&name) {
+            return true;
+        }
+        }
+        return false;
+    }
+
 }
 
 
 pub struct file {
     name: cstr,
-    parent: *directory,
+    parent: *mut directory,
     content: cstr,
 }
 
 impl file {
-    pub unsafe fn new(title: cstr, parent: *directory, content: cstr) -> file {
+    pub unsafe fn new(title: cstr, parent: *mut directory, content: cstr) -> file {
         let this = file {
             name: title,
             content: content,
@@ -139,73 +160,22 @@ impl file {
 }
 
 
-pub unsafe fn listDir(givenDir: directory) {
 
-    for fi in iter((*givenDir.fchildren).as_slice()) {
-        putcstr(fi.name);
-        drawcstr(fi.name, true, false);
+
+
+
+pub unsafe fn cd(givenDir: &mut directory, goal: cstr) -> (bool, *mut directory) {
+    if goal.eq(&cstr::from_str(&"..")) {
+        return (true,givenDir.parent)
     }
 
-    for dir in iter((*givenDir.dchildren).as_slice()) {
-        putcstr(dir.name);
-        drawcstr(dir.name, true, false);
-    }
-
-
-
-
-
-
-    // for dir in *(givenDir.dchildren) {
-    //     let name = dir.name;
-    //     ret.push(name);
-    // }
-    // for fi in *(givenDir.fchildren) {
-    //     let name = fi.name;
-    //     ret.push(name);
-    // }
-}
-
-pub unsafe fn cont_file(givenDir: directory, name: cstr) -> bool {
-    for fi in iter((*givenDir.fchildren).as_slice()) {
-        if fi.name.eq(&name) {
-	    return true;
-	}
-    }
-    return false;
-}
-
-pub unsafe fn cont_dir(givenDir: directory, name: cstr) -> bool {
-    for di in iter((*givenDir.dchildren).as_slice()) {
-        if di.name.eq(&name) {
-	    return true;
-	}
-    }
-    return false;
-}
-
-pub unsafe fn get_file(givenDir: directory, name: cstr) -> Option<&file> {
-    for fi in iter((*givenDir.fchildren).as_slice()) {
-        if fi.name.eq(&name) {
-	    return Some(fi);
-	}
-    }
-    return None;
-}
-
-pub unsafe fn cat(givenDir: directory, filename: cstr) {
-    let file = get_file(givenDir, filename);
-    drawcstr(file.get().content, true, false);
-    putcstr(file.get().content);
-}
-
-pub unsafe fn cd(givenDir: directory, goal: cstr) -> (bool,directory) {
     for dir in iter((*givenDir.dchildren).as_slice()) {
         if dir.name.eq(&goal) {
-            return (true,*dir)
+            let mut s = dir as *mut directory;
+            return (true, s)
         }
     }
-    return (false,givenDir)
+    return (false,*givenDir)
 }
 
 /*
