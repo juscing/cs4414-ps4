@@ -521,7 +521,7 @@ unsafe fn parse() {
 			putstr(&"\nUnrecognized Command!");
 			drawstr(&"\nUnrecognized Command!");
 		}
-		
+	    y.destroy();
 	}
 	None        => { }
 };

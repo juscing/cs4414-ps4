@@ -17,7 +17,7 @@ pub mod fs;
 pub mod rt;
 
 pub static mut heap: memory::Alloc = memory::Alloc {
-    base: 0x110_000 as *mut u8,
+    base: 0x2f0_000 as *mut u8,
     el_size: 0,
     parent: memory::BuddyAlloc {
         order: 17,
