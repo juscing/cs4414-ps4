@@ -345,8 +345,33 @@ unsafe fn parse() {
 
 
 		} else if(y.streq(&"rm")) {
-			putstr(&"\nTESTING rm");
-			drawstr(&"\nTESTING rm");
+			match buffer.getarg(' ', 1) {
+				Some(mut filename) => {
+					if filename.len() < 1 {
+						putstr(&"Bad File Name\n");
+						drawstr(&"Bad File Name\n");
+						return;
+					}
+					// let cwdptr = &cwd as *dnode;
+					// let dir = dnode::new(256, word, cwdptr as u32);
+					// let x = cwd.add_child((&dir as *dnode) as u32);
+
+					if fs::cont_file(cwd, filename)
+					{
+						cwd.remove(filename);
+					}
+					else
+					{
+						putstr(&"\nFile not found.");
+						drawstr(&"\nFile not found.");
+					}
+
+				}
+				None => {
+					putstr(&"Bad Directory Name\n");
+					drawstr(&"Bad Directory Name\n");
+				}
+			}
 		} else if(y.streq(&"mkdir")) {
 			match buffer.getarg(' ', 1) {
 				Some(mut word) => {
@@ -400,11 +425,11 @@ unsafe fn parse() {
 							let f = fs::file::new(filename, &cwd, file_content);
 							cwd.add_file(f);
 
-							putcstr(f.name);
-							drawcstr(f.name, true, false);
+							// putcstr(f.name);
+							// drawcstr(f.name, true, false);
 
-							putcstr(f.content);
-							drawcstr(f.content, true, false);
+							// putcstr(f.content);
+							// drawcstr(f.content, true, false);
 
 						}
 						None => {

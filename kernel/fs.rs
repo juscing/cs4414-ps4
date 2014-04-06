@@ -21,7 +21,7 @@ pub struct directory {
 
 impl directory {
     pub unsafe fn new(title: cstr, parent: *directory) -> directory {
-        let this = directory {
+        let mut this = directory {
             name: title,
             fchildren: &mut Vec::new() as *mut Vec<file>,
             dchildren: &mut Vec::new() as *mut Vec<directory>,
@@ -36,6 +36,27 @@ impl directory {
 
     pub unsafe fn add_file(&mut self, f : file) { 
        (*self.fchildren).push(f);
+    }
+
+    pub unsafe fn remove(&mut self, filename : cstr) { 
+
+        let mut flag = false;
+        let mut new_vec = &mut Vec::new() as *mut Vec<file>;
+
+        for fi in iter((*self.fchildren).as_slice()) {
+            if fi.name.eq(&filename) {
+                flag = true;
+                continue;
+            }
+            (*new_vec).push(*fi);
+            
+        }
+
+        if flag
+        {
+            self.fchildren = new_vec;
+        }        
+        
     }
 }
 
