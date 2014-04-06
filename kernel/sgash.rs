@@ -321,8 +321,8 @@ unsafe fn parse() {
 
 
 		} else if(y.streq(&"rm")) {
-			putstr(&"\nTEST rm");
-			drawstr(&"\nTEST rm");
+			putstr(&"\nTESTING rm");
+			drawstr(&"\nTESTING rm");
 		} else if(y.streq(&"mkdir")) {
 			match buffer.getarg(' ', 1) {
 				Some(mut word) => {
