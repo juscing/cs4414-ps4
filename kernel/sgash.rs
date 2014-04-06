@@ -375,7 +375,16 @@ unsafe fn parse() {
 									return;
 								}
 
-								cwd.move(filename, destination);
+								if fs::cont_file(cwd, filename)
+								{
+									let content = fs::get_file(cwd, filename).get().content;
+									let f = fs::file::new(destination, &cwd, content);
+									cwd.add_file(f);
+									cwd.remove_file(filename);
+									
+								}
+
+								
 							}
 							None => 
 							{

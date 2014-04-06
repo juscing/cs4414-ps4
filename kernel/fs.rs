@@ -38,31 +38,31 @@ impl directory {
        (*self.fchildren).push(f);
     }
 
-    pub unsafe fn move(mut self, filename : cstr, destination : cstr) { 
+    // pub unsafe fn move(mut self, filename : cstr, destination : cstr) { 
 
-        let mut flag = false;
-        let mut new_vec = &mut Vec::new() as *mut Vec<file>;
+    //     let mut flag = false;
+    //     let mut new_vec = &mut Vec::new() as *mut Vec<file>;
 
-        for fi in iter((*self.fchildren).as_slice()) {
-            if fi.name.eq(&filename) {
-                flag = true;
+    //     for fi in iter((*self.fchildren).as_slice()) {
+    //         if fi.name.eq(&filename) {
+    //             flag = true;
 
-                let f = file::new(destination, &self, fi.content);
+    //             let f = file::new(destination, &self, fi.content);
 
-                (*new_vec).push(f);
-                continue;
-            }
-            (*new_vec).push(*fi);
+    //             (*new_vec).push(f);
+    //             continue;
+    //         }
+    //         (*new_vec).push(*fi);
             
-        }
+    //     }
 
-        if flag
-        {
-            putstr(&"\nMove");
-            self.fchildren = new_vec;
-        }        
+    //     if flag
+    //     {
+    //         putstr(&"\nMove");
+    //         self.fchildren = new_vec;
+    //     }        
         
-    }
+    // }
 
     pub unsafe fn remove_file(&mut self, filename : cstr) { 
 
@@ -75,41 +75,49 @@ impl directory {
                 continue;
             }
             (*new_vec).push(*fi);
-            
         }
 
         if flag
         {
-            self.fchildren = new_vec;
+            (*self.fchildren).truncate(0);
+            for fi in iter((*new_vec).as_slice()) {
+               (*self.fchildren).push(*fi);
+            }
         }        
         
     }
     
     pub unsafe fn remove_dir(&mut self, dirname: cstr) -> bool {
-	let mut flag = false;
-	let mut new_vec = &mut Vec::new() as *mut Vec<directory>;
-	
-	for &mut dir in iter((*self.dchildren).as_slice()) {
-	    /*
-	    let mut x = dir.dchildren as u32;
-	    let mut y = x as *mut Vec<directory>;
-	    let mut z = *y;
-	    if z.len() == 0 {
-	    */
-		if dir.name.eq(&dirname) {
-		    flag = true;
-		    continue;
-		}
-	    //}
-	    (*new_vec).push(dir);
-	}
-	if flag
+    	let mut flag = false;
+    	let mut new_vec = &mut Vec::new() as *mut Vec<directory>;
+    	
+    	for &mut dir in iter((*self.dchildren).as_slice()) {
+    	    /*
+    	    let mut x = dir.dchildren as u32;
+    	    let mut y = x as *mut Vec<directory>;
+    	    let mut z = *y;
+    	    if z.len() == 0 {
+    	    */
+    		if dir.name.eq(&dirname) {
+    		    flag = true;
+    		    continue;
+    		}
+    	    //}
+    	    (*new_vec).push(dir);
+    	}
+
+    	if flag
         {
-            self.dchildren = new_vec;
+            (*self.dchildren).truncate(0);
+            for dir in iter((*new_vec).as_slice()) {
+               (*self.dchildren).push(*dir);
+            }
         }
+
         return flag;
     }
 }
+
 
 pub struct file {
     name: cstr,
