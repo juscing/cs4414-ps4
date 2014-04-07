@@ -14,18 +14,18 @@ use kernel::sgash::drawstr;
 
 pub struct directory {
     name: cstr,
-    parent: *mut directory,
+    parent: Option<&'static mut directory>,
     fchildren: *mut Vec<file>,
     dchildren: *mut Vec<directory>,
 }
 
 impl directory {
-    pub unsafe fn new(title: cstr, parent: *mut directory) -> directory {
+    pub unsafe fn new(title: cstr, parent: Option<&'static mut directory>) -> directory {
         let mut this = directory {
             name: title,
             fchildren: &mut Vec::new() as *mut Vec<file>,
             dchildren: &mut Vec::new() as *mut Vec<directory>,
-            parent: parent,
+            parent: Some(parent.get()),
         };
         this
     }
@@ -87,7 +87,7 @@ impl directory {
             (*self.dchildren).truncate(0);
             (*self.dchildren).shrink_to_fit();
             for dir in iter((*new_vec).as_slice()) {
-               (*self.dchildren).push(*dir);
+               (*self.dchildren).push(&dir);
             }
         }
 
@@ -144,12 +144,12 @@ impl directory {
 
 pub struct file {
     name: cstr,
-    parent: *mut directory,
+    parent: Option<&'static mut directory>,
     content: cstr,
 }
 
 impl file {
-    pub unsafe fn new(title: cstr, parent: *mut directory, content: cstr) -> file {
+    pub unsafe fn new(title: cstr, parent: Option<&'static mut directory>, content: cstr) -> file {
         let this = file {
             name: title,
             content: content,
@@ -163,22 +163,22 @@ impl file {
 
 
 
-pub unsafe fn cd(givenDir: *mut directory, goal: cstr) -> (bool, *mut directory) {
+pub unsafe fn cd(givenDir: &'static mut directory, goal: cstr) -> (bool, Option<&'static mut directory>) {
     if goal.eq(&cstr::from_str(&"..")) {
-        let s = (*givenDir).parent;
-        return (true, s);
+        
+        return (true, givenDir.parent);
     }
 
     let mut d : fs::directory;
 
-    for &mut dir in iter((*(*givenDir).dchildren).as_slice()) {
+    for &mut dir in iter((*givenDir.dchildren).as_slice()) {
         if dir.name.eq(&goal) {
-            return(true, &mut dir as *mut directory);            
+            return(true, Some(&'static mut dir));            
         }
     }
 
 
-    return (false, givenDir);
+    return (false, Some(givenDir));
 }
 
 /*
