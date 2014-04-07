@@ -438,7 +438,15 @@ unsafe fn parse() {
 					// let dir = dnode::new(256, word, cwdptr as u32);
 					// let x = cwd.add_child((&dir as *dnode) as u32);
 
-					let d = fs::directory::new(word, cwd);
+					let mut d = fs::directory {
+					    name: word,
+					    parent: cwd,
+					    fchildren: &mut vec::Vec::with_capacity(10) as *mut vec::Vec<fs::file>,
+					    dchildren: &mut vec::Vec::with_capacity(10) as *mut vec::Vec<fs::directory>,
+
+					};
+
+					// let d = fs::directory::new(word, cwd);
 					(*cwd).add_directory(d);
 
 				}
