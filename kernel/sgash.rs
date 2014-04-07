@@ -287,27 +287,44 @@ unsafe fn parse() {
 		} else if(y.streq(&"cd")) {
 			match buffer.getarg(' ', 1) {
 				Some(mut word) => {
-			         let check = fs::cd(cwd,word);
-                     match check {
-                        (mut x, mut y) => {
-                            if x {
-				putstr(&"Current folder");
-                                cwd = y;
-                                putstr(&"Current folder");
-                                putcstr((*cwd).name);
-                                drawstr(&"Current folder");
-                                drawcstr((*cwd).name,true,false);
-                            }
-                            else {
-                                putstr(&"Directory does not exist\n");
-                                drawstr(&"Directory does not exist\n");
-                            } 
-                        }
-                        /*( _, _) => {
-                            putstr(&"Something horrible has occurred\n");
-                            drawstr(&"Something horrible has occurred\n");
-                        }*/
-                     }
+					if word.eq(&cstr::from_str(&".."))
+					{
+						let mut d = (*cwd).parent;
+						cwd = d;
+					}
+					else if (*cwd).cont_dir(word)
+					{
+						let mut d = (*cwd).get_dir(word).get();
+						cwd = &mut d as *mut fs::directory;
+					}
+					else
+					{
+						putstr(&"\nNot a directory.");
+						drawstr(&"\nNot a directory.");
+					}
+
+
+			 //         let check = fs::cd(cwd,word);
+    //                  match check {
+    //                     (mut x, mut y) => {
+    //                         if x {
+				// putstr(&"Current folder");
+    //                             cwd = y;
+    //                             putstr(&"Current folder");
+    //                            
+    //                             drawstr(&"Current folder");
+    //                             
+    //                         }
+    //                         else {
+    //                             putstr(&"Directory does not exist\n");
+    //                             drawstr(&"Directory does not exist\n");
+    //                         } 
+    //                     }
+    //                     /*( _, _) => {
+    //                         putstr(&"Something horrible has occurred\n");
+    //                         drawstr(&"Something horrible has occurred\n");
+    //                     }*/
+    //                  }
 				}
 				None => {
 					putstr(&"Bad Directory Name\n");
@@ -685,91 +702,4 @@ impl cstr {
 	}
 
 
-}
-
-/*
-struct fs {
-    cwd: dnode,
-}
-
-impl fs {
-    unsafe fn new() -> fs {
-	let rdnode = dnode::new(256, cstr::from_str(&"/"), '\0' as uint);
-	let this = fs {
-	    cwd: rdnode,
-	};
-	this
-    }
-}
-*/
-
-struct dnode {
-	children: *mut u32,
-	curptr: uint,
-	name: cstr,
-	max: uint,
-	parent: u32,
-}
-
-impl dnode {
-	unsafe fn new(size: uint, name: cstr, parent: u32) -> dnode {
-	// Sometimes this doesn't allocate enough memory and gets stuck...
-	let (x, y) = heap.alloc(size);
-	let this = dnode {
-		children: x as *mut u32,
-		curptr: 0,
-		name: name,
-		max: y / 4 as uint,
-		parent: parent,
-	};
-	*(((this.children as u32)+(4*this.curptr) as u32) as *mut u32) = '\0' as u32;
-	this
-}
-
-fn len(&self) -> uint { self.curptr }
-
-unsafe fn add_child(&mut self, x: u32) -> bool{
-	if (self.curptr == self.max) { return false; }
-	*(((self.children as u32)+(4 * self.curptr) as u32) as *mut u32) = x;
-	self.curptr += 1;
-	if self.curptr > 0 {
-		putstr(&"INCR\n");
-	}
-	*(((self.children as u32)+(4 * self.curptr) as u32) as *mut u32) = '\0' as u32;
-	true
-}
-
-unsafe fn get_dir(&mut self, x: uint) -> u32{
-	if x >= self.curptr { return '\0' as u32; }
-	//raw memory address! just index it!
-	*(((self.children as u32)+(4*x) as u32) as *mut u32)
-}
-
-    /*
-    unsafe fn delete_item(&mut self) -> bool {
-	if (self.curptr == 0) { return false; }
-	self.curptr -= 1;
-	*(((self.children as uint)+self.curptr) as *mut char) = '\0';
-	true
-    }
-    */
-}
-
-struct fnode {
-	data: cstr,
-	curptr: uint,
-	name: cstr,
-	parent: u8,
-}
-
-impl fnode {
-	unsafe fn new(size: uint, name: cstr, data: cstr, parent: u8) -> fnode {
-		let this = fnode {
-			data: data,
-			curptr: 0,
-			name: name,
-			parent: parent,
-		};
-		this
-	}
 }

@@ -95,7 +95,6 @@ impl directory {
     }
 
     pub unsafe fn listDir(&mut self) {
-
         for fi in iter((*self.fchildren).as_slice()) {
             putcstr(fi.name);
             drawcstr(fi.name, true, false);
@@ -121,11 +120,20 @@ impl directory {
         putcstr(file.get().content);
     }
 
-    pub unsafe fn get_file(&mut self, name: cstr) -> Option<&file> {
+    pub unsafe fn get_file(&mut self, name: cstr) -> Option<file> {
         for fi in iter((*self.fchildren).as_slice()) {
             if fi.name.eq(&name) {
-            return Some(fi);
+            return Some(*fi);
         }
+        }
+        return None;
+    }
+
+    pub unsafe fn get_dir(&mut self, name: cstr) -> Option<directory> {
+        for dir in iter((*self.dchildren).as_slice()) {
+            if dir.name.eq(&name) {
+                return Some(*dir);
+            }
         }
         return None;
     }
@@ -163,23 +171,23 @@ impl file {
 
 
 
-pub unsafe fn cd(givenDir: *mut directory, goal: cstr) -> (bool, *mut directory) {
-    if goal.eq(&cstr::from_str(&"..")) {
-        let s = (*givenDir).parent;
-        return (true, s);
-    }
+// pub unsafe fn cd(givenDir: *mut directory, goal: cstr) -> (bool, *mut directory) {
+//     if goal.eq(&cstr::from_str(&"..")) {
+//         let s = (*givenDir).parent;
+//         return (true, s);
+//     }
 
-    let mut d : fs::directory;
+//     let mut d : fs::directory;
 
-    for &mut dir in iter((*(*givenDir).dchildren).as_slice()) {
-        if dir.name.eq(&goal) {
-            return(true, &mut dir as *mut directory);            
-        }
-    }
+//     for &mut dir in iter((*(*givenDir).dchildren).as_slice()) {
+//         if dir.name.eq(&goal) {
+//             return(true, &mut dir as *mut directory);            
+//         }
+//     }
 
 
-    return (false, givenDir);
-}
+//     return (false, givenDir);
+// }
 
 /*
 pub fn open(node: *tree_node, file: cstr) -> (*tree_node, bool, bool)
